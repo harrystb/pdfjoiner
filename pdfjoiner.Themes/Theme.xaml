@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="ButtonBackgroundD" A="255" R="92" G="9" B="210" />
+    <Color x:Key="ButtonBackgroundL" A="255" R="164" G="113" B="236" />
+    <Color x:Key="HoverButtonBackgroundD" A="255" R="143" G="58" B="244" />
+    <Color x:Key="HoverButtonBackgroundL" A="255" R="163" G="112" B="244" />
+</ResourceDictionary>

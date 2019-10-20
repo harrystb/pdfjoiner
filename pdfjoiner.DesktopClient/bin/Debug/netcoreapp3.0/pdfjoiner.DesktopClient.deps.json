@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.0": {
+      "pdfjoiner.DesktopClient/1.0.0": {
+        "dependencies": {
+          "pdfjoiner.Themes": "1.0.0"
+        },
+        "runtime": {
+          "pdfjoiner.DesktopClient.dll": {}
+        }
+      },
+      "pdfjoiner.Themes/1.0.0": {
+        "runtime": {
+          "pdfjoiner.Themes.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "pdfjoiner.DesktopClient/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "pdfjoiner.Themes/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

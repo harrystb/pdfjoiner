@@ -1,0 +1,11 @@
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Themes\bin\Debug\netcoreapp3.0\pdfjoiner.Themes.deps.json
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Themes\bin\Debug\netcoreapp3.0\pdfjoiner.Themes.dll
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Themes\bin\Debug\netcoreapp3.0\pdfjoiner.Themes.pdb
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Themes\obj\Debug\netcoreapp3.0\pdfjoiner.Themes.csprojAssemblyReference.cache
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Themes\obj\Debug\netcoreapp3.0\pdfjoiner.Themes_MarkupCompile.cache
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Themes\obj\Debug\netcoreapp3.0\Theme.baml
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Themes\obj\Debug\netcoreapp3.0\pdfjoiner.Themes.g.resources
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Themes\obj\Debug\netcoreapp3.0\pdfjoiner.Themes.AssemblyInfoInputs.cache
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Themes\obj\Debug\netcoreapp3.0\pdfjoiner.Themes.AssemblyInfo.cs
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Themes\obj\Debug\netcoreapp3.0\pdfjoiner.Themes.dll
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Themes\obj\Debug\netcoreapp3.0\pdfjoiner.Themes.pdb

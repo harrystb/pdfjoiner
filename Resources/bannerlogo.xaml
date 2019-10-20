@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This file is compatible with Silverlight-->
+<Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Name="BannerLogo" Width="196" Height="72">
+      <Canvas.RenderTransform>
+        <MatrixTransform Matrix="0.848485 0 0 0.8 -63.0606 305.7"/>
+      </Canvas.RenderTransform>
+      <Rectangle Canvas.Left="92" Canvas.Top="-374" Width="231" Height="90" Name="rect4485" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+      <Canvas Name="g4595">
+        <Canvas Name="g4589">
+          <Canvas Name="g4583">
+            <Canvas.RenderTransform>
+              <MatrixTransform Matrix="1 0 0 1.25 -7.10543e-15 71"/>
+            </Canvas.RenderTransform>
+            <Canvas Name="g4489">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.8729 0 0 1.58913 60.3254 -385.954"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4487" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4493">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.8729 0 0 1.58913 60.3254 -388.253"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4491" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4497">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.8729 0 0 1.58913 60.3254 -390.551"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4495" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4501">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.86878 0.105321 -0.124128 1.58563 63.709 -387.712"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4499" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4505">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.85645 0.210179 -0.24771 1.57517 67.2224 -389.276"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4503" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4509">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.83595 0.314112 -0.370204 1.55777 70.8502 -390.639"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4507" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4513">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.80737 0.416664 -0.491069 1.53353 74.5765 -391.795"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4511" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4517">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.77085 0.517384 -0.609774 1.50254 78.3849 -392.739"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4515" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4521">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.72655 0.615829 -0.725799 1.46495 82.2587 -393.467"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4519" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4525">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.67465 0.711566 -0.838632 1.42091 86.1808 -393.975"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4523" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4529">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.61538 0.804174 -0.947777 1.37063 90.1339 -394.261"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4527" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4533">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1.54902 0.893246 -1.05275 1.31432 94.1007 -394.325"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4531" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4537">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.8729 0 0 1.58913 360.238 -389.554"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4535" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4541">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.8729 0 0 1.58913 360.238 -390.551"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4539" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4545">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.86878 0.105321 0.124128 1.58563 356.855 -391.312"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4543" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4549">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.85645 0.210179 0.24771 1.57517 353.341 -392.876"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4547" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4553">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.83595 0.314112 0.370204 1.55777 349.714 -394.238"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4551" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4557">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.80737 0.416664 0.491069 1.53353 345.987 -395.394"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4555" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4561">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.77085 0.517384 0.609774 1.50254 342.179 -396.338"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4559" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4565">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.72655 0.615829 0.725799 1.46495 338.305 -397.066"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4563" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4569">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.67465 0.711566 0.838632 1.42091 334.383 -397.574"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4567" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4573">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.61538 0.804174 0.947777 1.37063 330.43 -397.86"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4571" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4577">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.54902 0.893246 1.05275 1.31432 326.463 -397.924"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4575" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+            <Canvas Name="g4581">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="-1.47584 0.978389 1.1531 1.25223 322.5 -397.764"/>
+              </Canvas.RenderTransform>
+              <Rectangle Canvas.Left="23" Canvas.Top="25" Width="60" Height="1" Name="rect4579" Fill="#000000" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+            </Canvas>
+          </Canvas>
+        </Canvas>
+        <Canvas Name="g4593">
+          <Canvas.RenderTransform>
+            <MatrixTransform Matrix="2.01279 0 0 2.13478 -37.905 -377.883"/>
+          </Canvas.RenderTransform>
+          <TextBlock FontSize="20" FontFamily="ArialMT, Arial, sans-serif" Foreground="#A70000" Canvas.Left="71" Canvas.Top="7.6" Name="text4591">PDF Joiner</TextBlock>
+        </Canvas>
+      </Canvas>
+    </Canvas>
+
