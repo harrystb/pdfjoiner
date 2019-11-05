@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NETCOREAPP;NETCOREAPP3_0
 B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.DesktopClient\App.xaml
-11151548125
+61138005991
 
-8-810352907
+91145385187
 1931966875634
-MainWindow.xaml;
+MainWindow.xaml;Styles\Buttons.xaml;Styles\Colors.xaml;Styles\Fonts.xaml;Styles\Texts.xaml;Styles\Windows.xaml;
 
-True
+False
 

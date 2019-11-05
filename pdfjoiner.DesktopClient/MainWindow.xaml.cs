@@ -22,8 +22,7 @@ namespace pdfjoiner
     {
         public MainWindow()
         {
-            var viewModel = new Test();
-            viewModel.TextTest = "Initial Value";
+            var viewModel = new MainViewModel();
             DataContext = viewModel;
 
             InitializeComponent();

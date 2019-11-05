@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="res\AddPageButton.png" />
-    <None Remove="res\bannerlogo.png" />
-    <None Remove="res\GenerateButton.png" />
+    <None Remove="Images\AddPageButton.png" />
+    <None Remove="Images\bannerlogo.png" />
+    <None Remove="Images\GenerateButton.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,9 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="res\AddPageButton.png" />
-    <Resource Include="res\bannerlogo.png" />
-    <Resource Include="res\GenerateButton.png" />
+    <Resource Include="Images\AddPageButton.png" />
+    <Resource Include="Images\bannerlogo.png" />
+    <Resource Include="Images\GenerateButton.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,6 +35,25 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Fonts\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Styles\Buttons.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Styles\Windows.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Styles\Texts.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>
