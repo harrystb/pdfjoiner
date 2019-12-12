@@ -18,17 +18,31 @@ namespace pdfjoiner
 
         #region Public Attributes
         private string _status = string.Empty;
-        public string Status { get { return _status; } }
+        private string Status
+        {
+            get
+            {
+                return _status;
+            }
+            set
+            {
+                _status = value;
+                StatusCallback?.Invoke(_status);
+            }
+        }
         #endregion
 
         #region Private Attributes
 
-        private Dictionary<string, DocumentItem> _DocumentItems = new Dictionary<string, DocumentItem>();
+        private Dictionary<string, DocumentItem> DocumentItems = new Dictionary<string, DocumentItem>();
         private System.Diagnostics.Process? GenerationProcess = null;
         private bool GenerationWindowVisible = false;
         private bool GenerationTerminateFlag = false;
         private Thread? GenerationThread = null;
         private string GeneratedPDFPath = string.Empty;
+
+        private delegate void StatusUpdateCallbackHandler(string status);
+        private event StatusUpdateCallbackHandler? StatusCallback = null;
 
         #endregion
 
@@ -126,7 +140,7 @@ namespace pdfjoiner
             foreach (string documentReference in GetGenerationDocuments(GenerationString))
             {
                 //Copy the relevant file
-                System.IO.File.Copy(_DocumentItems[documentReference].Path, generationFolder + _DocumentItems[documentReference].Filename);
+                System.IO.File.Copy(DocumentItems[documentReference].Path, generationFolder + DocumentItems[documentReference].Filename);
             }
             
             //generate the document
@@ -138,11 +152,13 @@ namespace pdfjoiner
                 WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
                 UseShellExecute = true
             };
-            GenerationProcess = new System.Diagnostics.Process();
-            GenerationProcess.StartInfo = startInfo;
+            GenerationProcess = new System.Diagnostics.Process
+            {
+                StartInfo = startInfo
+            };
             GenerationProcess.Start();
             GenerationWindowVisible = false;
-            _status = "Generating.";
+            Status = "Generating.";
             GenerationThread = new Thread(ThreadProc);
 
             return string.Empty;
@@ -163,7 +179,7 @@ namespace pdfjoiner
             {
                 //terminate the process
                 GenerationProcess.Kill();
-                _status = "Cancelled.";
+                Status = "Cancelled.";
                 return;
             }
 
@@ -171,9 +187,11 @@ namespace pdfjoiner
             if (System.IO.File.Exists(GeneratedPDFPath))
             {
                 //Get the save file location and copy it there
-                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-                saveFileDialog1.Filter = "PDF Files|*.pdf";
-                saveFileDialog1.Title = "Save the PDF File";
+                SaveFileDialog saveFileDialog1 = new SaveFileDialog
+                {
+                    Filter = "PDF Files|*.pdf",
+                    Title = "Save the PDF File"
+                };
                 saveFileDialog1.ShowDialog();
                 if (saveFileDialog1.FileName != "")
                 {
@@ -184,10 +202,10 @@ namespace pdfjoiner
             else
             {
                 //not found - failed to generate.
-                _status = "Error - generation of PDF failed.";
+                Status = "Error - generation of PDF failed.";
                 return;
             }
-            _status = "Done.";
+            Status = "Done.";
         }
         #endregion
 
@@ -216,7 +234,7 @@ namespace pdfjoiner
                 //Extract the document ID
                 var docId = pageDef[0].ToString();
                 //Document ID is not in list of documents
-                if (!(_DocumentItems.ContainsKey(docId)))
+                if (!(DocumentItems.ContainsKey(docId)))
                 {
                     errors.Add(pageDef);
                     continue;
@@ -340,11 +358,11 @@ namespace pdfjoiner
             //For each part of the generation string, add in the relevant includepdf line
             foreach(string generationCode in generationString.Split())
             {
-                if (isWholeDocument(generationCode))
+                if (IsWholeDocument(generationCode))
                 {
                     //Add the whole document generation command
                     latex += "\\autoincludepdf{";
-                    latex += _DocumentItems[generationCode.Substring(0,1)].Filename;
+                    latex += DocumentItems[generationCode.Substring(0,1)].Filename;
                     latex += "}\n";
                 } else
                 {
@@ -355,7 +373,7 @@ namespace pdfjoiner
                     if (pages[0].Length == 0)
                     {
                         latex += "\\autoincludepdflastpage{";
-                        latex += _DocumentItems[generationCode.Substring(0,1)].Filename;
+                        latex += DocumentItems[generationCode.Substring(0,1)].Filename;
                         latex += "}{";
                         latex += pages[1];
                         latex += "}\n";
@@ -363,14 +381,14 @@ namespace pdfjoiner
                     }else if (pages[1].Length == 0)
                     {
                         latex += "\\autoincludepdfstartpage{";
-                        latex += _DocumentItems[generationCode.Substring(0,1)].Filename;
+                        latex += DocumentItems[generationCode.Substring(0,1)].Filename;
                         latex += "}{";
                         latex += pages[0];
                         latex += "}\n";
                     } else
                     {
                         latex += "\\autoincludepdfstartpage{";
-                        latex += _DocumentItems[generationCode.Substring(0,1)].Filename;
+                        latex += DocumentItems[generationCode.Substring(0,1)].Filename;
                         latex += "}{";
                         latex += pages[0];
                         latex += "}{";
@@ -392,7 +410,7 @@ namespace pdfjoiner
         /// </summary>
         /// <param name="generationCode></param>
         /// <returns>True if generation code does not specify a page range, otherwise false.</returns>
-        private bool isWholeDocument(string generationCode)
+        private bool IsWholeDocument(string generationCode)
         {
             //Assumes generation code is valid as it should have already been validated.
             //Whole Doc: A A-, Partial: A-2, A2-, A1-2

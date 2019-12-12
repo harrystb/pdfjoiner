@@ -32,14 +32,14 @@ namespace pdfjoiner
         public DocumentItem(string path)
         {
             Path = path;
-            Filename = getFilenameFromPath(Path);
-            NumberOfPages = getNumberOfPagesFromFile(Path)??"Unknown";
+            Filename = GetFilenameFromPath(Path);
+            NumberOfPages = GetNumberOfPagesFromFile(Path)??"Unknown";
         }
         #endregion
 
         #region Helper Functions
 
-        private string getFilenameFromPath(string path)
+        private string GetFilenameFromPath(string path)
         {
             if (!File.Exists(path))
                 return string.Empty;
@@ -53,7 +53,7 @@ namespace pdfjoiner
         /// </summary>
         /// <param name="path">The fullpath to the file.</param>
         /// <returns>If the file does not exist or is empty or not a PDF then null is returned otherwise a string containing the number of pages if found, otherwise an empty string.</returns>
-        private string? getNumberOfPagesFromFile(string path)
+        private string? GetNumberOfPagesFromFile(string path)
         {
             //If the file does not exist then return an empty string
             if (!File.Exists(path))
@@ -64,7 +64,10 @@ namespace pdfjoiner
             string? line = sr.ReadLine();
             //Check if the file is a PDF file, return an null if it is not.
             if ((line != null && line.Contains("PDF")))
+            { 
+                sr.Dispose();
                 return null;
+            }
             //String buffer to hold the current element properties <</.../.../..>>
             string currentElement = string.Empty;
             //Bool to know whether we are in a element or not
@@ -104,6 +107,7 @@ namespace pdfjoiner
                 //read the next line.
                 line = sr.ReadLine();
             }
+            sr.Dispose();
             return numberOfPages;
         }
         /// <summary>
