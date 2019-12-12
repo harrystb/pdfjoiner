@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.IO;
 namespace pdfjoiner
 {
@@ -28,11 +29,11 @@ namespace pdfjoiner
         /// Default constructor.
         /// </summary>
         /// <param name="Path">Full path of the document to be added</param>
-        public DocumentItem(string Path)
+        public DocumentItem(string path)
         {
-            this.Path = Path;
-            this.Filename = getFilenameFromPath(Path);
-            this.NumberOfPages = getNumberOfPagesFromFile(Path);
+            Path = path;
+            Filename = getFilenameFromPath(Path);
+            NumberOfPages = getNumberOfPagesFromFile(Path)??"Unknown";
         }
         #endregion
 

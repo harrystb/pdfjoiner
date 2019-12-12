@@ -1,36 +1,112 @@
-﻿
+﻿#nullable enable
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace pdfjoiner
 {
     public class DocumentGenerator
-    {       
+    {
+        #region External DLL
+        [DllImport("User32")]
+        private static extern int ShowWindow(int hwnd, int nCmdShow);
+        private const int SW_HIDE = 0;
+        private const int SW_SHOW = 5;
+        #endregion
+
+        #region Public Attributes
+        private string _status = string.Empty;
+        public string Status { get { return _status; } }
+        #endregion
+
         #region Private Attributes
 
-        private IDictionary<string, DocumentItem> _DocumentItems;
-        private bool GenerationRunning = false;
-        private System.Diagnostics.Process GenerationProcess;
+        private Dictionary<string, DocumentItem> _DocumentItems = new Dictionary<string, DocumentItem>();
+        private System.Diagnostics.Process? GenerationProcess = null;
+        private bool GenerationWindowVisible = false;
+        private bool GenerationTerminateFlag = false;
+        private Thread? GenerationThread = null;
+        private string GeneratedPDFPath = string.Empty;
 
         #endregion
 
         #region Constructor
         public DocumentGenerator()
         {
-            
+            return;
         }
         #endregion
 
         #region Methods
         /// <summary>
-        /// Generates the PDF.
+        /// Toggles the visibility of the command window running latex.
+        /// </summary>
+        public void ToggleProcessWindowVisibility()
+        {
+            //do nothing if it is not running
+            if (GenerationProcess == null)
+                return;
+            //if visible then hide
+            if (GenerationWindowVisible)
+            {
+                ShowWindow(GenerationProcess.MainWindowHandle.ToInt32(), SW_HIDE);
+            } else
+            //otherwise...show
+            {
+                ShowWindow(GenerationProcess.MainWindowHandle.ToInt32(), SW_SHOW);
+            }
+        }
+
+        /// <summary>
+        /// Terminates the Generation Process if it is running.
+        /// </summary>
+        /// <returns>False if there was an issue with stopping the process.</returns>
+        public bool TerminateGeneration()
+        {
+            //If the generation process does not exist, return true
+            if (GenerationProcess == null)
+                return true;
+
+            //If the terminate flag is already set, wait until the process gets cleaned up by the other thread
+            if (GenerationTerminateFlag)
+            {
+                int count = 0;
+                while (GenerationProcess != null || count < 10)
+                {
+                    count++;
+                    Thread.Sleep(100); // wait 100ms and check again
+                }
+                if (GenerationProcess != null)
+                    return false; //The process did not end within the 10 retrys
+                return true; //the process did end
+            }
+
+            if (GenerationThread == null)
+                return false; //Something has stopped the thread without stopping the process.
+
+            //No other thread is currently terminating, so we will terminate it.
+            GenerationTerminateFlag = true;
+            GenerationThread.Join();
+            GenerationThread = null;
+            GenerationProcess.Dispose();
+            GenerationProcess = null;
+            //finished terminating, clear the flag
+            GenerationTerminateFlag = false;
+            return true;
+        }
+
+        /// <summary>
+        /// Starts the generation the PDF. 
+        /// The status attribute will update based on the success of the generations.
         /// </summary>
         /// <param name="GenerationString"></param>
         /// <returns>A empty string if no errors occured, otherwise the error description.</returns>
         public string Generate(string GenerationString)
         {
             // Check if it is already running
-            if (GenerationRunning)
+            if (GenerationProcess != null)
                 return "Already running.";
 
             // Check the validation string.
@@ -43,53 +119,75 @@ namespace pdfjoiner
             System.IO.Directory.CreateDirectory(generationFolder);
             //Store the path for the latex and pdf file which will be created
             string latexFilePath = generationFolder + "pdfjoinertemp.tex";
-            string generatedPdfPath = generationFolder + "pdfjoinertemp.pdf";
+            GeneratedPDFPath = generationFolder + "pdfjoinertemp.pdf";
             //Create the latex file
+            System.IO.File.WriteAllText(latexFilePath, GetLatexCode(GenerationString));
+            //Copy the relevant PDF files into the temp folder
+            foreach (string documentReference in GetGenerationDocuments(GenerationString))
+            {
+                //Copy the relevant file
+                System.IO.File.Copy(_DocumentItems[documentReference].Path, generationFolder + _DocumentItems[documentReference].Filename);
+            }
             
-
-
-            //Generate the document.
-            GenerationProcess = new System.Diagnostics.Process();
-            string outputPdfPath = string.Empty;
-            System.IO.File.WriteAllText(latexFilePath, getLatexCode());
-            System.IO.File.Copy(FilePathA, tempFolderPath + FileAPathLabel.Text);
-            System.IO.File.Copy(FilePathB, tempFolderPath + FileBPathLabel.Text);
-            //run latex
+            //generate the document
             var startInfo = new System.Diagnostics.ProcessStartInfo
             {
-                WorkingDirectory = tempFolderPath,
+                WorkingDirectory = generationFolder,
                 FileName = "CMD.exe",
                 Arguments = "/C ..\\MikTek\\texmfs\\install\\miktex\\bin\\x64\\pdflatex.exe pdfjoinertemp.tex",
                 WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
                 UseShellExecute = true
             };
-            var proc = System.Diagnostics.Process.Start(startInfo);
-            proc.WaitForExit();
-            if (System.IO.File.Exists(TempPdfPath))
+            GenerationProcess = new System.Diagnostics.Process();
+            GenerationProcess.StartInfo = startInfo;
+            GenerationProcess.Start();
+            GenerationWindowVisible = false;
+            _status = "Generating.";
+            GenerationThread = new Thread(ThreadProc);
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Monitors the generation process and terminate flags to control 
+        /// </summary>
+        private void ThreadProc()
+        {
+            //Check every second to see if the process is done, or terminate has been called
+            while (!GenerationTerminateFlag && !(GenerationProcess == null) && !GenerationProcess.HasExited)
             {
+                Thread.Sleep(1000);
+            }
+            //Check if terminate was pressed and the process is still running
+            if (GenerationTerminateFlag && !(GenerationProcess == null) && !GenerationProcess.HasExited)
+            {
+                //terminate the process
+                GenerationProcess.Kill();
+                _status = "Cancelled.";
+                return;
+            }
+
+            //Check if the file was generated
+            if (System.IO.File.Exists(GeneratedPDFPath))
+            {
+                //Get the save file location and copy it there
                 SaveFileDialog saveFileDialog1 = new SaveFileDialog();
                 saveFileDialog1.Filter = "PDF Files|*.pdf";
                 saveFileDialog1.Title = "Save the PDF File";
                 saveFileDialog1.ShowDialog();
                 if (saveFileDialog1.FileName != "")
                 {
-                    outputPdfPath = saveFileDialog1.FileName;
-                    System.IO.File.Copy(TempPdfPath, outputPdfPath, true);
+                    string outputPdfPath = saveFileDialog1.FileName;
+                    System.IO.File.Copy(GeneratedPDFPath, outputPdfPath, true);
                 }
             }
             else
             {
-                return "Error - generation of PDF failed. Check the temporary folder that was created at: " + generationFolder;
+                //not found - failed to generate.
+                _status = "Error - generation of PDF failed.";
+                return;
             }
-
-
-
-            return string.Empty;
-        }
-
-        public void ShowTerminal()
-        {
-
+            _status = "Done.";
         }
         #endregion
 
@@ -173,6 +271,7 @@ namespace pdfjoiner
             var latex = String.Empty;
             //Add in the start of the latex code
             latex += "\\documentclass[a4]{report}" + System.Environment.NewLine;
+            latex += "\\usepackage[space]{grffile}" + System.Environment.NewLine;
             latex += "\\usepackage{pdfpages}" + System.Environment.NewLine;
             latex += "\\newcounter{mtpdfpage}" + System.Environment.NewLine;
             latex += "\\newsavebox{\\mtsavebox}" + System.Environment.NewLine;
@@ -301,6 +400,28 @@ namespace pdfjoiner
             if (generationCode.Length == 1 || generationCode.Length == 2) 
                 return true;
             return false;
+        }
+
+        /// <summary>
+        /// Returns a list of the unique document references in the generation string.
+        /// </summary>
+        /// <param name="generationString"> The generation string.</param>
+        /// <returns></returns>
+        List<string> GetGenerationDocuments(string generationString)
+        {
+            List<string> documentReferences = new List<string>();
+            //For each generation code, add the document reference to the list if it doesn't already exist there.
+            foreach (string generationCode in generationString.Split())
+            {
+                //Get the document reference from the string
+                string documentReference = generationCode[0].ToString();
+                //If 
+                if (!documentReferences.Contains(documentReference))
+                {
+                    documentReferences.Add(documentReference);
+                }
+            }
+            return documentReferences;
         }
 
         #endregion
