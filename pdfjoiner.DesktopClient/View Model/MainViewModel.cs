@@ -1,4 +1,10 @@
-﻿using System.Windows.Input;
+﻿#nullable enable
+using Microsoft.Win32;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace pdfjoiner
 {
@@ -14,18 +20,23 @@ namespace pdfjoiner
         /// </summary>
         public MainViewModel()
         {
-            _ChangeDocumentSelected = new DelegateCommand(OnDocumentSelectedChange);
             _GenerateDocument = new DelegateCommand(OnGenerateDocumentButton);
             _AddDocument = new DelegateCommand(OnAddDocumentButton);
             _AddPages = new DelegateCommand(OnAddPagesButton);
             _ShowTerminal = new DelegateCommand(OnShowTerminalButton);
             _CancelGeneration = new DelegateCommand(OnCancelGenerationButton);
             _ResetForm = new DelegateCommand(OnResetFormButton);
+            DocGenerator = new DocumentGenerator();
+            DocGenerator.SetStatusChangedCallback(StatusChanged);
+            StatusText = "Welcome, please add a document to get started.";
         }
         #endregion
 
         #region Properties
-        private string _FilenameText;
+
+        private readonly DocumentGenerator DocGenerator;
+
+        private string _FilenameText = string.Empty;
         /// <summary>
         /// Currently Selected Filename
         /// </summary>
@@ -36,7 +47,7 @@ namespace pdfjoiner
         }
 
 
-        private string _PathText;
+        private string _PathText = string.Empty;
         /// <summary>
         /// Path to the currently selected file
         /// </summary>
@@ -46,7 +57,7 @@ namespace pdfjoiner
             set => SetProperty(ref _PathText, value);
         }
 
-        private string _NumPagesText;
+        private string _NumPagesText = string.Empty;
         /// <summary>
         /// Number of pages in the currently selected file
         /// </summary>
@@ -56,7 +67,7 @@ namespace pdfjoiner
             set => SetProperty(ref _NumPagesText, value);
         }
 
-        private string _AddPageText;
+        private string _AddPageText = string.Empty;
         /// <summary>
         /// String for the pages which are to be added to the generation string.
         /// </summary>
@@ -66,7 +77,7 @@ namespace pdfjoiner
             set => SetProperty(ref _AddPageText, value);
         }
 
-        private string _GenerationText;
+        private string _GenerationText = string.Empty;
         /// <summary>
         /// String for the pages which are to be added to the generation string.
         /// </summary>
@@ -75,20 +86,62 @@ namespace pdfjoiner
             get => _GenerationText;
             set => SetProperty(ref _GenerationText, value);
         }
+
+        private string _StatusText = string.Empty;
+        /// <summary>
+        /// Status text which is to be displayed to the user.
+        /// </summary>
+        public string StatusText
+        {
+            get => _StatusText;
+            set => SetProperty(ref _StatusText, value);
+        }
+
+
+        private ObservableCollection<string> _DocumentItemList = new ObservableCollection<string>();
+        public ObservableCollection<string> DocumentItemList
+        {
+            get => _DocumentItemList;
+            set => SetProperty(ref _DocumentItemList, value);
+        }
+
+        private string _SelectedDocument = string.Empty;
+        public string SelectedDocument
+        { 
+            get
+            { 
+                return _SelectedDocument;
+            }
+
+            set
+            {
+                //set the selected document before trying to use it
+                _SelectedDocument = value;
+                //get the ID of the document
+                string id = _SelectedDocument.Split(':')[0];
+                //Update the title, path and num pages based on the new selection
+                DocumentItem? selectedDocument = DocGenerator.GetDocument(id);
+                if (selectedDocument == null)
+                {
+                    MessageBox.Show("Unknown document selected. Suggest resetting the document list.");
+                    return;
+                }
+                //update the text boxes with the document information.
+                FilenameText = selectedDocument.Filename;
+                PathText = selectedDocument.Path;
+                NumPagesText = selectedDocument.NumberOfPages;
+            }
+        }
+
         #endregion
 
         #region Methods
 
-        /// <summary>
-        /// Event call to indicate the selected document has been changed.
-        /// </summary>
-        public ICommand ChangeDocumentSelected => _ChangeDocumentSelected;
-        private readonly DelegateCommand _ChangeDocumentSelected;
-        private void OnDocumentSelectedChange(object commandParameter)
+        
+        void StatusChanged(string newStatus)
         {
-            throw new System.NotImplementedException();
+            StatusText = newStatus;
         }
-
 
         /// <summary>
         /// Event to start the document generation process
@@ -97,7 +150,7 @@ namespace pdfjoiner
         private readonly DelegateCommand _GenerateDocument;
         private void OnGenerateDocumentButton(object commandParameter)
         {
-            throw new System.NotImplementedException();
+            DocGenerator.Generate(GenerationText);
         }
 
         /// <summary>
@@ -107,7 +160,18 @@ namespace pdfjoiner
         private readonly DelegateCommand _AddDocument;
         private void OnAddDocumentButton(object commandParameter)
         {
-            throw new System.NotImplementedException();
+            OpenFileDialog FileDialog1 = new OpenFileDialog
+            {
+                Filter = "PDF Files|*.pdf",
+                Title = "Select a PDF File"
+            };
+            FileDialog1.ShowDialog();
+            if (FileDialog1.FileName == "")
+                return;
+            string? key = DocGenerator.AddDocumentToList(FileDialog1.FileName);
+            if (string.IsNullOrEmpty(key))
+                return;
+            DocumentItemList.Add(key + ": " + DocGenerator.GetDocument(key)?.Filename??"Unknown");
         }
 
         /// <summary>
@@ -117,7 +181,7 @@ namespace pdfjoiner
         private readonly DelegateCommand _AddPages;
         private void OnAddPagesButton(object commandParameter)
         {
-            throw new System.NotImplementedException();
+            MessageBox.Show("Add Pages Button not implemented.");
         }
 
         /// <summary>
@@ -127,7 +191,7 @@ namespace pdfjoiner
         private readonly DelegateCommand _ShowTerminal;
         private void OnShowTerminalButton(object commandParameter)
         {
-            throw new System.NotImplementedException();
+            DocGenerator.ToggleProcessWindowVisibility();
         }
 
         /// <summary>
@@ -137,7 +201,7 @@ namespace pdfjoiner
         private readonly DelegateCommand _CancelGeneration;
         private void OnCancelGenerationButton(object commandParameter)
         {
-            throw new System.NotImplementedException();
+            MessageBox.Show("Cancel Button not implemented.");
         }
 
         /// <summary>
@@ -147,7 +211,7 @@ namespace pdfjoiner
         private readonly DelegateCommand _ResetForm;
         private void OnResetFormButton(object commandParameter)
         {
-            throw new System.NotImplementedException();
+            MessageBox.Show("Reset Button not implemented.");
         }
 
         #endregion

@@ -6,7 +6,7 @@ namespace pdfjoiner
     /// <summary>
     /// Information about a document item such as path, filename and number of pages.
     /// </summary>
-    public class DocumentItem
+    public class DocumentItem : IEquatable<DocumentItem>
     {
 
         #region Public Attributes
@@ -37,6 +37,23 @@ namespace pdfjoiner
         }
         #endregion
 
+        #region Public Methods
+
+        /// <summary>
+        /// Checks Path and Filename of both DocumentItems to determine if they are equal. 
+        /// Ignores Number of pages.
+        /// </summary>
+        /// <param name="other">The DocumentItem to compare against</param>
+        /// <returns>True if Path and Filename are the same.</returns>
+        public bool Equals(DocumentItem other)
+        {
+            if ((this.Path == other.Path) && (this.Filename == other.Filename))
+                return true;
+            return false;
+        }
+
+        #endregion
+
         #region Helper Functions
 
         private string GetFilenameFromPath(string path)
@@ -63,7 +80,7 @@ namespace pdfjoiner
             //Read the first line.
             string? line = sr.ReadLine();
             //Check if the file is a PDF file, return an null if it is not.
-            if ((line != null && line.Contains("PDF")))
+            if ((line != null && !(line.Contains("PDF"))))
             { 
                 sr.Dispose();
                 return null;
@@ -117,23 +134,18 @@ namespace pdfjoiner
         /// <returns>Page count if found, else null</returns>
         private string? CheckForPagesInElement(string element)
         {
-            //If the element does not contain page count - return null
-            if (!element.Contains("/Pages"))
+            //If the element does not contain page count or if it is not the top level count - return null
+            if (!element.Contains("/Pages") || element.Contains("/Parent"))
                 return null;
 
-            //extract the Pages portion of the string
-            string pageSection = element.Substring(element.IndexOf("/Pages") + 6);
-            //Check if the /Count is after /Pages if not, them this element still does not contain total
-            if (!pageSection.Contains("/Count"))
+            //Make sure count is present
+            if (!element.Contains("/Count"))
                 return null;
 
-            //Get the "Count" Element
-            string countSection = pageSection.Substring(pageSection.IndexOf("/Count") + 6);
-
-            //get the page count
-            string pageCount = countSection.Substring(0, countSection.IndexOf("/Kid")).Trim();
-
-            return pageCount;
+            int startIndex = element.IndexOf("/Count") + 7;
+            int length = element.IndexOf('/', startIndex) - startIndex;
+            string count = element.Substring(startIndex, length);
+            return count;
         }
 
         #endregion
