@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace pdfjoiner
 {
@@ -30,6 +31,7 @@ namespace pdfjoiner
             DocGenerator = new DocumentGenerator();
             DocGenerator.SetStatusChangedCallback(StatusChanged);
             StatusText = "Welcome, please add a document to get started.";
+            StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
         }
         #endregion
 
@@ -98,6 +100,19 @@ namespace pdfjoiner
             set => SetProperty(ref _StatusText, value);
         }
 
+        private Brush _StatusBrush;
+        public Brush StatusBrush
+        {
+            get
+            {
+                return _StatusBrush;
+            }
+            set
+            {
+                SetProperty(ref _StatusBrush, value);
+            }
+        }
+
 
         private ObservableCollection<string> _DocumentItemList = new ObservableCollection<string>();
         public ObservableCollection<string> DocumentItemList
@@ -117,7 +132,7 @@ namespace pdfjoiner
             set
             {
                 //set the selected document before trying to use it
-                _SelectedDocument = value;
+                SetProperty(ref _SelectedDocument, value);
                 //get the ID of the document
                 string id = _SelectedDocument.Split(':')[0];
                 //Update the title, path and num pages based on the new selection
@@ -170,18 +185,21 @@ namespace pdfjoiner
             if (FileDialog1.FileName == "")
             {
                 StatusText = "No file selected.";
+                StatusBrush = (Brush)new BrushConverter().ConvertFromString("Orange");
                 return;
             }
             string? key = DocGenerator.AddDocumentToList(FileDialog1.FileName);
             if (string.IsNullOrEmpty(key))
             {
                 StatusText = "Document is already in the list.";
+                StatusBrush = (Brush)new BrushConverter().ConvertFromString("Orange");
                 return;
             }
             string listText = key + ": " + DocGenerator.GetDocument(key)?.Filename ?? "Unknown";
             DocumentItemList.Add(listText);
             SelectedDocument = listText;
             StatusText = "Document sucessfully added.";
+            StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
         }
 
         /// <summary>
@@ -194,6 +212,8 @@ namespace pdfjoiner
             //Validate the page string
             if (!ValidateAddPageString())
             {
+                StatusText = "Invalid character entered. Valid Example: 1,2-3,5-,-6";
+                StatusBrush = (Brush) new BrushConverter().ConvertFromString("Red");
                 return;
             }
             
@@ -207,6 +227,8 @@ namespace pdfjoiner
                 else
                     GenerationText = $"{GenerationText},{id}{segment}";
             }
+            StatusText = "Pages added to the generation string.";
+            StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
         }
 
         /// <summary>

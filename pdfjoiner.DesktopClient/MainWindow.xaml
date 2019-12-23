@@ -20,7 +20,7 @@
         <Rectangle Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"  Fill="#FFC9C7CC" />
         <Image Source="Images/bannerlogo.png" Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="0" />
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="20 20 20 0" Background="#FFC9C7CC">
-            <TextBox Margin ="5" Background="White" Foreground="Blue" IsReadOnly="True" Text="{Binding Path=StatusText}" />
+            <TextBox Margin ="5" Background="White" Foreground="{Binding Path=StatusBrush}" IsReadOnly="True" Text="{Binding Path=StatusText}" />
         </Border>
         <!--Left panel containing list of documents that have been added into the form-->
         <Grid Grid.Row="2" Grid.Column="0" Margin="20" Background="#FFC9C7CC">
