@@ -1,7 +1,8 @@
-﻿#nullable enable
+#nullable enable
 using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -167,11 +168,20 @@ namespace pdfjoiner
             };
             FileDialog1.ShowDialog();
             if (FileDialog1.FileName == "")
+            {
+                StatusText = "No file selected.";
                 return;
+            }
             string? key = DocGenerator.AddDocumentToList(FileDialog1.FileName);
             if (string.IsNullOrEmpty(key))
+            {
+                StatusText = "Document is already in the list.";
                 return;
-            DocumentItemList.Add(key + ": " + DocGenerator.GetDocument(key)?.Filename??"Unknown");
+            }
+            string listText = key + ": " + DocGenerator.GetDocument(key)?.Filename ?? "Unknown";
+            DocumentItemList.Add(listText);
+            SelectedDocument = listText;
+            StatusText = "Document sucessfully added.";
         }
 
         /// <summary>
@@ -181,7 +191,22 @@ namespace pdfjoiner
         private readonly DelegateCommand _AddPages;
         private void OnAddPagesButton(object commandParameter)
         {
-            MessageBox.Show("Add Pages Button not implemented.");
+            //Validate the page string
+            if (!ValidateAddPageString())
+            {
+                return;
+            }
+            
+            //Get the document ID
+            var id = _SelectedDocument.Split(':')[0];
+
+            foreach (var segment in AddPageText.Split(','))
+            {
+                if (string.IsNullOrEmpty(GenerationText))
+                    GenerationText = id + segment;
+                else
+                    GenerationText = $"{GenerationText},{id}{segment}";
+            }
         }
 
         /// <summary>
@@ -216,6 +241,21 @@ namespace pdfjoiner
 
         #endregion
 
+        #region Helpers
+
+        private bool ValidateAddPageString()
+        {
+
+            foreach (var segment in AddPageText.Split(','))
+            {
+                HashSet<char> AllowedChars = new HashSet<char> {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-'};
+                if (!AddPageText.All(AllowedChars.Contains))
+                    return false;
+            }
+            return true;
+        }
+
+        #endregion
 
     }
 }
