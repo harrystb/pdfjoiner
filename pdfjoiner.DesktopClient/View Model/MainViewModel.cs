@@ -22,14 +22,17 @@ namespace pdfjoiner
         /// </summary>
         public MainViewModel()
         {
+            //register all of the button functions as delegate commands
             _GenerateDocument = new DelegateCommand(OnGenerateDocumentButton);
             _AddDocument = new DelegateCommand(OnAddDocumentButton);
             _AddPages = new DelegateCommand(OnAddPagesButton);
             _ShowTerminal = new DelegateCommand(OnShowTerminalButton);
             _CancelGeneration = new DelegateCommand(OnCancelGenerationButton);
             _ResetForm = new DelegateCommand(OnResetFormButton);
+            //Create the document generator and register status callback
             DocGenerator = new DocumentGenerator();
             DocGenerator.SetStatusChangedCallback(StatusChanged);
+            //Set the initial status text;
             StatusText = "Welcome, please add a document to get started.";
             StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
         }
@@ -100,7 +103,7 @@ namespace pdfjoiner
             set => SetProperty(ref _StatusText, value);
         }
 
-        private Brush _StatusBrush;
+        private Brush _StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
         public Brush StatusBrush
         {
             get
@@ -133,13 +136,25 @@ namespace pdfjoiner
             {
                 //set the selected document before trying to use it
                 SetProperty(ref _SelectedDocument, value);
+                //Clear the AddPageText field
+                AddPageText = "";
+                //if the selected document is empty, clear out document panel
+                if (string.IsNullOrEmpty(SelectedDocument))
+                {
+                    FilenameText = "";
+                    PathText = "";
+                    NumPagesText = "";
+                    return;
+                }
                 //get the ID of the document
                 string id = _SelectedDocument.Split(':')[0];
                 //Update the title, path and num pages based on the new selection
                 DocumentItem? selectedDocument = DocGenerator.GetDocument(id);
                 if (selectedDocument == null)
                 {
-                    MessageBox.Show("Unknown document selected. Suggest resetting the document list.");
+                    FilenameText = "";
+                    PathText = "";
+                    NumPagesText = "";
                     return;
                 }
                 //update the text boxes with the document information.
@@ -248,7 +263,18 @@ namespace pdfjoiner
         private readonly DelegateCommand _CancelGeneration;
         private void OnCancelGenerationButton(object commandParameter)
         {
-            MessageBox.Show("Cancel Button not implemented.");
+            //Tell the document generator to stop
+            bool success = DocGenerator.TerminateGeneration();
+            //set status text based on whether the termination was successful
+            if (success)
+            {
+                StatusText = "Document Generation stopped.";
+                StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
+                return;
+            }
+            StatusText = "Document Generation failed to stop.";
+            StatusBrush = (Brush) new BrushConverter().ConvertFromString("Red");
+            
         }
 
         /// <summary>
@@ -258,7 +284,17 @@ namespace pdfjoiner
         private readonly DelegateCommand _ResetForm;
         private void OnResetFormButton(object commandParameter)
         {
-            MessageBox.Show("Reset Button not implemented.");
+            //Reset the selected document panel
+            SelectedDocument = "";
+            //Reset the document generator
+            DocGenerator.ResetDocumentList();
+            //Clear the document item list
+            DocumentItemList.Clear();
+            //Reset the Generation Text
+            GenerationText = "";
+            //write some status text
+            StatusText = "All fields reset.";
+            StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
         }
 
         #endregion
