@@ -31,10 +31,9 @@ namespace pdfjoiner
             _ResetForm = new DelegateCommand(OnResetFormButton);
             //Create the document generator and register status callback
             DocGenerator = new DocumentGenerator();
-            DocGenerator.SetStatusChangedCallback(StatusChanged);
+            DocGenerator.SetStatusChangedCallback(SetStatusTextboxContent);
             //Set the initial status text;
-            StatusText = "Welcome, please add a document to get started.";
-            StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
+            SetStatusTextboxContent("Welcome, please add a document to get started.", DocumentGenerator.StatusColourState.Green);
         }
         #endregion
 
@@ -168,10 +167,21 @@ namespace pdfjoiner
 
         #region Methods
 
-        
-        void StatusChanged(string newStatus)
+        private void SetStatusTextboxContent(string newStatus, DocumentGenerator.StatusColourState colourState )
         {
             StatusText = newStatus;
+            switch (colourState)
+            {
+                case (DocumentGenerator.StatusColourState.Green):
+                    StatusBrush = (Brush)new BrushConverter().ConvertFromString("Green");
+                    break;
+                case (DocumentGenerator.StatusColourState.Red):
+                    StatusBrush = (Brush)new BrushConverter().ConvertFromString("Red");
+                    break;
+                case (DocumentGenerator.StatusColourState.Orange):
+                    StatusBrush = (Brush)new BrushConverter().ConvertFromString("Orange");
+                    break;
+            }
         }
 
         /// <summary>
@@ -199,22 +209,19 @@ namespace pdfjoiner
             FileDialog1.ShowDialog();
             if (FileDialog1.FileName == "")
             {
-                StatusText = "No file selected.";
-                StatusBrush = (Brush)new BrushConverter().ConvertFromString("Orange");
+                SetStatusTextboxContent("No file selected.", DocumentGenerator.StatusColourState.Orange);
                 return;
             }
             string? key = DocGenerator.AddDocumentToList(FileDialog1.FileName);
             if (string.IsNullOrEmpty(key))
             {
-                StatusText = "Document is already in the list.";
-                StatusBrush = (Brush)new BrushConverter().ConvertFromString("Orange");
+                SetStatusTextboxContent("Document is already in the list.", DocumentGenerator.StatusColourState.Orange);
                 return;
             }
             string listText = key + ": " + DocGenerator.GetDocument(key)?.Filename ?? "Unknown";
             DocumentItemList.Add(listText);
             SelectedDocument = listText;
-            StatusText = "Document sucessfully added.";
-            StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
+            SetStatusTextboxContent("Document sucessfully added.", DocumentGenerator.StatusColourState.Green);
         }
 
         /// <summary>
@@ -227,8 +234,7 @@ namespace pdfjoiner
             //Validate the page string
             if (!ValidateAddPageString())
             {
-                StatusText = "Invalid character entered. Valid Example: 1,2-3,5-,-6";
-                StatusBrush = (Brush) new BrushConverter().ConvertFromString("Red");
+                SetStatusTextboxContent("Invalid character entered. Valid Example: 1,2-3,5-,-6", DocumentGenerator.StatusColourState.Red);
                 return;
             }
             
@@ -242,8 +248,7 @@ namespace pdfjoiner
                 else
                     GenerationText = $"{GenerationText},{id}{segment}";
             }
-            StatusText = "Pages added to the generation string.";
-            StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
+            SetStatusTextboxContent("Pages added to the generation string.", DocumentGenerator.StatusColourState.Green);
         }
 
         /// <summary>
@@ -268,12 +273,10 @@ namespace pdfjoiner
             //set status text based on whether the termination was successful
             if (success)
             {
-                StatusText = "Document Generation stopped.";
-                StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
+                SetStatusTextboxContent("Document Generation stopped.", DocumentGenerator.StatusColourState.Green);
                 return;
             }
-            StatusText = "Document Generation failed to stop.";
-            StatusBrush = (Brush) new BrushConverter().ConvertFromString("Red");
+            SetStatusTextboxContent("Document Generation failed to stop.", DocumentGenerator.StatusColourState.Red);
             
         }
 
@@ -293,8 +296,7 @@ namespace pdfjoiner
             //Reset the Generation Text
             GenerationText = "";
             //write some status text
-            StatusText = "All fields reset.";
-            StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
+            SetStatusTextboxContent("All fields reset.", DocumentGenerator.StatusColourState.Green);
         }
 
         #endregion
@@ -307,7 +309,7 @@ namespace pdfjoiner
             foreach (var segment in AddPageText.Split(','))
             {
                 HashSet<char> AllowedChars = new HashSet<char> {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-'};
-                if (!AddPageText.All(AllowedChars.Contains))
+                if (!segment.All(AllowedChars.Contains))
                     return false;
             }
             return true;

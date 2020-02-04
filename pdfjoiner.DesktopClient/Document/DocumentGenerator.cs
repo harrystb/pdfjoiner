@@ -19,19 +19,9 @@ namespace pdfjoiner
         #endregion
 
         #region Public Attributes
-        private string _status = string.Empty;
-        public string Status
-        {
-            get
-            {
-                return _status;
-            }
-            private set
-            {
-                _status = value;
-                StatusCallback?.Invoke(_status);
-            }
-        }
+
+        public enum StatusColourState { Green, Red, Orange};
+
 
         private Dictionary<string, DocumentItem> _documentItems = new Dictionary<string, DocumentItem>();
         public Dictionary<string, DocumentItem> DocumentItems
@@ -61,7 +51,7 @@ namespace pdfjoiner
         private string NextKey = "A";
         private IntPtr GenerationProcessHWND = IntPtr.Zero;
 
-        public delegate void StatusUpdateCallbackHandler(string status);
+        public delegate void StatusUpdateCallbackHandler(string status, StatusColourState colourState);
         private event StatusUpdateCallbackHandler? StatusCallback = null;
 
         #endregion
@@ -91,7 +81,7 @@ namespace pdfjoiner
 
             var key = GetNextKey();
             DocumentItems.Add(key, newDoc);
-            Status = "Document successfully added.";
+            StatusCallback?.Invoke("Document successfully added.", StatusColourState.Green);
             return key;
         }
 
@@ -255,7 +245,7 @@ namespace pdfjoiner
             //GenerationProcessHWND = GenerationProcess.MainWindowHandle;
             GenerationWindowVisible = false;
             //ToggleProcessWindowVisibility();
-            Status = "Generating.";
+            StatusCallback?.Invoke("Generating.", StatusColourState.Orange);
             GenerationThread = new Thread(ThreadProc);
             GenerationThread.Start();
 
@@ -284,7 +274,7 @@ namespace pdfjoiner
                 GenerationProcess.Kill();
                 GenerationProcess.Dispose();
                 GenerationProcess = null;
-                Status = "Cancelled.";
+                StatusCallback?.Invoke("Cancelled.", StatusColourState.Green);
                 return;
             }
 
@@ -307,12 +297,12 @@ namespace pdfjoiner
             else
             {
                 //not found - failed to generate.
-                Status = "Error - generation of PDF failed.";
+                StatusCallback?.Invoke("Error - generation of PDF failed.", StatusColourState.Red);
                 return;
             }
             GenerationProcess?.Dispose();
             GenerationProcess = null;
-            Status = "Done.";
+            StatusCallback?.Invoke("Done.", StatusColourState.Green);
         }
 
         /// <summary>
