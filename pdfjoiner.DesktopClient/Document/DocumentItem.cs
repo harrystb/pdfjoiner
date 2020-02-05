@@ -144,6 +144,11 @@ namespace pdfjoiner
 
             int startIndex = element.IndexOf("/Count") + 7;
             int length = element.IndexOf('/', startIndex) - startIndex;
+            if (length <= 0)
+            {
+                //There is no other words - look for end of element
+                length = element.IndexOf('>', startIndex) - startIndex;
+            }
             string count = element.Substring(startIndex, length);
             return count;
         }
