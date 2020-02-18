@@ -298,6 +298,8 @@ namespace pdfjoiner
             {
                 //not found - failed to generate.
                 StatusCallback?.Invoke("Error - generation of PDF failed.", StatusColourState.Red);
+                GenerationProcess?.Dispose();
+                GenerationProcess = null;
                 return;
             }
             GenerationProcess?.Dispose();
