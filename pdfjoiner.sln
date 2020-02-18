@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdfjoiner.Themes", "pdfjoiner.Themes\pdfjoiner.Themes.csproj", "{9F6F95AD-B62E-45F3-96FF-C7C1FC020F93}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdfjoiner.DesktopClient", "pdfjoiner.DesktopClient\pdfjoiner.DesktopClient.csproj", "{3ED08E34-C45C-4EEE-9FDD-519F6A59DA68}"
 EndProject
 Global
@@ -13,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9F6F95AD-B62E-45F3-96FF-C7C1FC020F93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F6F95AD-B62E-45F3-96FF-C7C1FC020F93}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F6F95AD-B62E-45F3-96FF-C7C1FC020F93}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F6F95AD-B62E-45F3-96FF-C7C1FC020F93}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3ED08E34-C45C-4EEE-9FDD-519F6A59DA68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3ED08E34-C45C-4EEE-9FDD-519F6A59DA68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3ED08E34-C45C-4EEE-9FDD-519F6A59DA68}.Release|Any CPU.ActiveCfg = Release|Any CPU

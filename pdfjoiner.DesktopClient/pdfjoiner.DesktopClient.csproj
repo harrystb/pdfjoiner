@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -14,10 +14,6 @@
     <None Remove="Images\AddPageButton.png" />
     <None Remove="Images\bannerlogo.png" />
     <None Remove="Images\GenerateButton.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\pdfjoiner.Themes\pdfjoiner.Themes.csproj" />
   </ItemGroup>
 
   <ItemGroup>
