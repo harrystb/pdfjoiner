@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdfjoiner.DesktopClient", "pdfjoiner.DesktopClient\pdfjoiner.DesktopClient.csproj", "{3ED08E34-C45C-4EEE-9FDD-519F6A59DA68}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdfjoiner.Core", "pdfjoiner.Core\pdfjoiner.Core.csproj", "{C23C1665-7E44-4206-86BA-998498640082}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdfjoiner.Console", "pdfjoiner.console\pdfjoiner.Console.csproj", "{289D0BBF-6FF8-4393-A88B-E296DCB38793}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{3ED08E34-C45C-4EEE-9FDD-519F6A59DA68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3ED08E34-C45C-4EEE-9FDD-519F6A59DA68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3ED08E34-C45C-4EEE-9FDD-519F6A59DA68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C23C1665-7E44-4206-86BA-998498640082}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C23C1665-7E44-4206-86BA-998498640082}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C23C1665-7E44-4206-86BA-998498640082}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C23C1665-7E44-4206-86BA-998498640082}.Release|Any CPU.Build.0 = Release|Any CPU
+		{289D0BBF-6FF8-4393-A88B-E296DCB38793}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{289D0BBF-6FF8-4393-A88B-E296DCB38793}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{289D0BBF-6FF8-4393-A88B-E296DCB38793}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{289D0BBF-6FF8-4393-A88B-E296DCB38793}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -49,7 +49,7 @@ namespace pdfjoiner
         private Thread? GenerationThread = null;
         private string GeneratedPDFPath = string.Empty;
         private string NextKey = "A";
-        private IntPtr GenerationProcessHWND = IntPtr.Zero;
+        private readonly IntPtr GenerationProcessHWND = IntPtr.Zero;
 
         public delegate void StatusUpdateCallbackHandler(string status, StatusColourState colourState);
         private event StatusUpdateCallbackHandler? StatusCallback = null;

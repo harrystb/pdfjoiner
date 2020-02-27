@@ -43,6 +43,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\pdfjoiner.Core\pdfjoiner.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="Styles\Colors.xaml">
       <SubType>Designer</SubType>
     </Page>
