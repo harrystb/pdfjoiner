@@ -1,4 +1,4 @@
-﻿using PdfSharp.Pdf;
+﻿using PdfSharpCore.Pdf;
 using System;
 using System.Collections.Generic;
 

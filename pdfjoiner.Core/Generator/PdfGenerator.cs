@@ -1,5 +1,6 @@
 ﻿using pdfjoiner.Core.Models;
 using System;
+using System.Threading.Tasks;
 
 namespace pdfjoiner.Core.Generator
 {
@@ -44,6 +45,23 @@ namespace pdfjoiner.Core.Generator
             //store the provided list locally
             documentList = list;
         }
+
+        //TODO: DocumentJoinModel version of the ctor
         #endregion
+
+        public string GenerateDocument(string joinString) {
+            //Generate a document
+            return "TODO";
+        }
+
+        /// <summary>
+        /// Async method to generate the document.
+        /// </summary>
+        /// <param name="joinString">The string which defines how the new document should be structured.</param>
+        public Task<string> GenerateDocumentAsync(string joinString)
+        {
+            return Task.FromResult<string>(GenerateDocument(joinString));   
+        }
+
     }
 }

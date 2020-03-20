@@ -1,5 +1,6 @@
 *localrelease*
 .vs/*
+.vscode/*
 *~
 */obj/*
 */bin
