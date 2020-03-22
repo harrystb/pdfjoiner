@@ -49,7 +49,8 @@ namespace pdfjoiner.Core.Generator
         //TODO: DocumentJoinModel version of the ctor
         #endregion
 
-        public string GenerateDocument(string joinString) {
+        public string GenerateDocument(string joinString)
+        {
             //Generate a document
             return "TODO";
         }
@@ -60,7 +61,7 @@ namespace pdfjoiner.Core.Generator
         /// <param name="joinString">The string which defines how the new document should be structured.</param>
         public Task<string> GenerateDocumentAsync(string joinString)
         {
-            return Task.FromResult<string>(GenerateDocument(joinString));   
+            return Task.FromResult<string>(GenerateDocument(joinString));
         }
 
     }

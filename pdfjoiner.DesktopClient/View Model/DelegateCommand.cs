@@ -27,7 +27,7 @@ namespace pdfjoiner
         public void Execute(object parameter) => _executeAction(parameter);
 
         public bool CanExecute(object parameter) => true;
-        
+
 
     }
 }

@@ -3,8 +3,6 @@ using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -102,7 +100,7 @@ namespace pdfjoiner
             set => SetProperty(ref _StatusText, value);
         }
 
-        private Brush _StatusBrush = (Brush) new BrushConverter().ConvertFromString("Green");
+        private Brush _StatusBrush = (Brush)new BrushConverter().ConvertFromString("Green");
         public Brush StatusBrush
         {
             get
@@ -125,9 +123,9 @@ namespace pdfjoiner
 
         private string _SelectedDocument = string.Empty;
         public string SelectedDocument
-        { 
+        {
             get
-            { 
+            {
                 return _SelectedDocument;
             }
 
@@ -167,7 +165,7 @@ namespace pdfjoiner
 
         #region Methods
 
-        private void SetStatusTextboxContent(string newStatus, DocumentGenerator.StatusColourState colourState )
+        private void SetStatusTextboxContent(string newStatus, DocumentGenerator.StatusColourState colourState)
         {
             StatusText = newStatus;
             switch (colourState)
@@ -237,7 +235,7 @@ namespace pdfjoiner
                 SetStatusTextboxContent("Invalid character entered. Valid Example: 1,2-3,5-,-6", DocumentGenerator.StatusColourState.Red);
                 return;
             }
-            
+
             //Get the document ID
             var id = _SelectedDocument.Split(':')[0];
 
@@ -277,7 +275,7 @@ namespace pdfjoiner
                 return;
             }
             SetStatusTextboxContent("Document Generation failed to stop.", DocumentGenerator.StatusColourState.Red);
-            
+
         }
 
         /// <summary>
@@ -308,7 +306,7 @@ namespace pdfjoiner
 
             foreach (var segment in AddPageText.Split(','))
             {
-                HashSet<char> AllowedChars = new HashSet<char> {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-'};
+                HashSet<char> AllowedChars = new HashSet<char> { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-' };
                 if (!segment.All(AllowedChars.Contains))
                     return false;
             }

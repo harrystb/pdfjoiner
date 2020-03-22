@@ -8,7 +8,8 @@ namespace pdfjoiner.console
         #endregion
 
 
-        public ConsoleViewModel() {
+        public ConsoleViewModel()
+        {
 
         }
 

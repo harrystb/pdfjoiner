@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace pdfjoiner.Core.Models
 {
     /// <summary>
@@ -6,13 +8,18 @@ namespace pdfjoiner.Core.Models
     public class DocumentJoinModel
     {
         #region Constructor
-        public DocumentJoinModel()
+        public DocumentJoinModel(DocumentListModel documentList, string joinString)
         {
-            
+            DocumentList = documentList;
+            JoinString = joinString;
         }
         #endregion
 
         #region Properties
+        public DocumentListModel DocumentList { get; set; }
+        public string JoinString { get; set; }
+
+        public List<DocumentPageModel> DocumentPageList { get; set; }
         #endregion
 
         #region Attributes

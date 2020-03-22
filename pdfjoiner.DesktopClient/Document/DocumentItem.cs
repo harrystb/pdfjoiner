@@ -33,7 +33,7 @@ namespace pdfjoiner
         {
             Path = path;
             Filename = GetFilenameFromPath(Path);
-            NumberOfPages = GetNumberOfPagesFromFile(Path)??"Unknown";
+            NumberOfPages = GetNumberOfPagesFromFile(Path) ?? "Unknown";
         }
         #endregion
 
@@ -61,7 +61,7 @@ namespace pdfjoiner
             if (!File.Exists(path))
                 return string.Empty;
             string normalisedPath = path.Replace('/', '\\');
-            int  lastIndex = normalisedPath.LastIndexOf('\\');
+            int lastIndex = normalisedPath.LastIndexOf('\\');
             return path.Substring(lastIndex + 1, path.Length - lastIndex - 1);
         }
 
@@ -81,7 +81,7 @@ namespace pdfjoiner
             string? line = sr.ReadLine();
             //Check if the file is a PDF file, return an null if it is not.
             if ((line != null && !(line.Contains("PDF"))))
-            { 
+            {
                 sr.Dispose();
                 return null;
             }
@@ -98,7 +98,8 @@ namespace pdfjoiner
                 {
                     //we are already in an element, so keep adding to the buffer
                     currentElement += line;
-                } else
+                }
+                else
                 {
                     //not yet in a buffer, only start adding if we find a start of the element
                     if (line.Contains("<<"))
@@ -110,7 +111,8 @@ namespace pdfjoiner
                 }
 
                 //check if there is a end of element symbol
-                if (currentElement.Contains(">>")) {
+                if (currentElement.Contains(">>"))
+                {
                     numberOfPages = CheckForPagesInElement(currentElement);
                     //if we have part of the next element, then leave that intact
                     if (currentElement.LastIndexOf("<<") > currentElement.LastIndexOf(">>"))

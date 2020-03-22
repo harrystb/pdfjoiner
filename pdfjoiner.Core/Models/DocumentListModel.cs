@@ -1,5 +1,4 @@
-﻿using PdfSharpCore.Pdf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace pdfjoiner.Core.Models
@@ -10,19 +9,7 @@ namespace pdfjoiner.Core.Models
     public class DocumentListModel
     {
         #region Properties
-        private Dictionary<string, DocumentModel> documentList;
-        public Dictionary<string, DocumentModel> DocumentList
-        {
-            get
-            {
-                return documentList;
-            }
-
-            private set
-            {
-                documentList = value;
-            }
-        }
+        public Dictionary<string, DocumentModel> DocumentList { get; private set; }
 
 
         #endregion
@@ -47,7 +34,7 @@ namespace pdfjoiner.Core.Models
             //store the key for the document to be returned later
             string key = nextKey;
             // add the document to the list
-            documentList.Add(key, document);
+            DocumentList.Add(key, document);
             // update the next key attribute
             UpdateNextKey();
             //return the key of the document that was added
@@ -81,7 +68,7 @@ namespace pdfjoiner.Core.Models
             //start searching for the next key at the lowest possible key
             string key = "A";
             //run through possible keys starting from the bottom until a free key is found
-            while (documentList.ContainsKey(key))
+            while (DocumentList.ContainsKey(key))
             {
                 key = GetPossibleNextKey(key);
             }
@@ -109,7 +96,7 @@ namespace pdfjoiner.Core.Models
             char lastChar = key[key.Length - 1];
 
             //increment the last character if it is not "Z" and return the new key
-            if ( lastChar != 'Z')
+            if (lastChar != 'Z')
             {
                 lastChar++;
                 return key.Substring(0, key.Length - 1) + lastChar;

@@ -20,12 +20,12 @@ namespace pdfjoiner
 
         #region Public Attributes
 
-        public enum StatusColourState { Green, Red, Orange};
+        public enum StatusColourState { Green, Red, Orange };
 
 
         private Dictionary<string, DocumentItem> _documentItems = new Dictionary<string, DocumentItem>();
         public Dictionary<string, DocumentItem> DocumentItems
-        { 
+        {
             get
             {
                 return _documentItems;
@@ -124,7 +124,7 @@ namespace pdfjoiner
         /// Pass in the call back for when the status has been changed.
         /// </summary>
         /// <param name="callback"></param>
-        public void SetStatusChangedCallback( StatusUpdateCallbackHandler callback)
+        public void SetStatusChangedCallback(StatusUpdateCallbackHandler callback)
         {
             StatusCallback = callback;
         }
@@ -146,7 +146,8 @@ namespace pdfjoiner
                 //ShowWindow(GenerationProcess.MainWindowHandle, SW_HIDE);
                 ShowWindow(GenerationProcess.MainWindowHandle, SW_MINIMIZE);
                 GenerationWindowVisible = false;
-            } else
+            }
+            else
             //otherwise...show
             {
                 ShowWindow(GenerationProcess.MainWindowHandle, SW_RESTORE);
@@ -224,7 +225,7 @@ namespace pdfjoiner
                 //Copy the relevant file
                 System.IO.File.Copy(DocumentItems[documentReference].Path, generationFolder + DocumentItems[documentReference].Filename, true);
             }
-            
+
             //generate the document
             var startInfo = new System.Diagnostics.ProcessStartInfo
             {
@@ -318,7 +319,7 @@ namespace pdfjoiner
             if (GenerationString.Length == 0)
                 return "";
             // Keep track of the current errors
-            var errors = new List<string>(); 
+            var errors = new List<string>();
             // Go through each page definition and and check it while keeping track of the current index
             foreach (string pageDef in GenerationString.Split(','))
             {
@@ -453,7 +454,7 @@ namespace pdfjoiner
             //start of the latex document
             latex += "\\begin{document}" + System.Environment.NewLine;
             //For each part of the generation string, add in the relevant includepdf line
-            foreach(string generationCode in generationString.Split(','))
+            foreach (string generationCode in generationString.Split(','))
             {
                 (string id, string pageText) = GetIdAndPages(generationCode);
                 //check to make sure the generation code actually has something
@@ -466,7 +467,8 @@ namespace pdfjoiner
                     latex += "\\autoincludepdf{";
                     latex += DocumentItems[id].Filename;
                     latex += "}\n";
-                } else
+                }
+                else
                 {
                     //Assume valid generation string as it has been checked already
                     //To get to this point the code must be A1-2, A-2, A2- or A1, or A
@@ -481,7 +483,7 @@ namespace pdfjoiner
                         latex += "}{";
                         latex += pages[0];
                         latex += "}\n";
-                    } 
+                    }
                     else if (pages[0].Length == 0)
                     {
                         //If the page number before the - is blank, then it must be a up to page definition
@@ -566,7 +568,7 @@ namespace pdfjoiner
             if (string.IsNullOrEmpty(pages))
                 return true;
             //pages is '-' only, must be whole document as well 
-            if (pages.Length == 1 && pages[0] == '-') 
+            if (pages.Length == 1 && pages[0] == '-')
                 return true;
 
             //Cannot be a whole document

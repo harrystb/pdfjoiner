@@ -1,7 +1,7 @@
-﻿using System;
-using System.Linq;
-using pdfjoiner.Core.Generator;
+﻿using pdfjoiner.Core.Generator;
 using pdfjoiner.Core.Models;
+using System;
+using System.Linq;
 
 namespace pdfjoiner.console
 {
@@ -11,7 +11,8 @@ namespace pdfjoiner.console
         {
             // Parse the arguments
             //TESTING: Arg1 = PDF A, Arg2 = PDF B, Arg3 = Join String
-            if (args.Length != 4) {
+            if (args.Length != 4)
+            {
                 Console.WriteLine("Incorrect number of arguments provided.");
             }
             string pdfPath1 = args[1];
@@ -22,14 +23,15 @@ namespace pdfjoiner.console
             var documentList = new DocumentListModel();
             string pdf1Ref = documentList.AddDocument(pdfPath1);
             string pdf2Ref = documentList.AddDocument(pdfPath1);
-            joinString = joinString.Split(",").Aggregate("",(a,b) => {
+            joinString = joinString.Split(",").Aggregate("", (a, b) =>
+            {
                 if (a.Length > 0)
                 {
                     a += ",";
                 }
                 if (b[0] == 'A')
                 {
-                    return a + b.Replace("A",pdf1Ref);
+                    return a + b.Replace("A", pdf1Ref);
                 }
                 else if (b[0] == 'B')
                 {

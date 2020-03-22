@@ -1,6 +1,5 @@
-﻿using System.ComponentModel;
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 namespace pdfjoiner
 {
