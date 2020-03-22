@@ -49,6 +49,32 @@ namespace pdfjoiner.Core.Models
                 return Pdf.PageCount;
             }
         }
+
+        /// <summary>
+        /// The index of the last page in the document
+        /// </summary>
+        public int LastPageIndex
+        {
+            get
+            {
+                if (Pdf == null)
+                    return 0;
+                return Pdf.PageCount - 1;
+            }
+        }
+        #endregion
+
+        #region Public Methods
+        /// <summary>
+        /// Gets the specified page from the Pdf.
+        /// Note: Pdf is numbered from 0
+        /// </summary>
+        /// <param name="pageNumber">The page to take</param>
+        /// <returns></returns>
+        public PdfPage GetPage(int pageNumber)
+        {
+            return Pdf.Pages[pageNumber];
+        }
         #endregion
     }
 }

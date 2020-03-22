@@ -1,5 +1,8 @@
 ﻿using pdfjoiner.Core.Models;
+using PdfSharpCore.Pdf;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace pdfjoiner.Core.Generator
@@ -11,58 +14,108 @@ namespace pdfjoiner.Core.Generator
         #endregion
 
         #region Attributes
-        private DocumentListModel documentList;
         /// <summary>
-        /// The list of pdf documents.
+        /// The list 
         /// </summary>
-        public DocumentListModel DocumentList
-        {
-            get { return documentList; }
-            set { documentList = value; }
-        }
+        private readonly IEnumerable<DocumentSegmentModel> DocumentSegments;
+
+        private PdfDocument GeneratedPdf = null;
         #endregion
 
         #region Constructor
         /// <summary>
-        /// Constructor which initiates empty properties.
+        /// Creates a PdfGenerator object from a list of document segments.
         /// </summary>
-        public PdfGenerator()
+        public PdfGenerator(IEnumerable<DocumentSegmentModel> documentSegments)
         {
             //initiate a new list
-            documentList = new DocumentListModel();
+            DocumentSegments = documentSegments;
         }
 
         /// <summary>
-        /// Constructor which takes in a predined document list.
+        /// Creates a PdfGenerator with a DocumentJoinModel
         /// </summary>
-        /// <param name="list">The document list to be included.</param>
-        public PdfGenerator(DocumentListModel list)
+        public PdfGenerator(DocumentJoinModel documentJoinModel)
         {
-            //Guard statement
-            if (list == null)
-                throw new ArgumentNullException("list");
-
-            //store the provided list locally
-            documentList = list;
+            DocumentSegments = documentJoinModel.DocumentSegments;
         }
 
-        //TODO: DocumentJoinModel version of the ctor
         #endregion
 
-        public string GenerateDocument(string joinString)
+
+        #region Public Methods
+
+        /// <summary>
+        /// Generate the document
+        /// </summary>
+        public void GenerateDocument()
         {
-            //Generate a document
-            return "TODO";
+            //Guard against repeated generations
+            if (GeneratedPdf != null)
+                throw new InvalidOperationException("Document has already been generated. GenerateDocument should not be called again.");
+            GeneratedPdf = new PdfDocument();
+
+            //Add all the necessary pages
+            GeneratedPdf = DocumentSegments.Aggregate(GeneratedPdf, (GeneratedPdf, nextSegment) => 
+            {
+                for (int i = nextSegment.StartPageIndex; i <= nextSegment.EndPageIndex; i++)
+                {
+                    GeneratedPdf.AddPage(nextSegment.Document.GetPage(i));
+                }
+                return GeneratedPdf;
+            });
+            
         }
 
         /// <summary>
-        /// Async method to generate the document.
+        /// Save the generated document to the provided path.
         /// </summary>
-        /// <param name="joinString">The string which defines how the new document should be structured.</param>
-        public Task<string> GenerateDocumentAsync(string joinString)
+        /// <param name="path">The location to save the generated document</param>
+        /// <returns></returns>
+        public void SaveGeneratedDocument(string path)
         {
-            return Task.FromResult<string>(GenerateDocument(joinString));
+            GeneratedPdf.Save(path);
         }
 
+        /// <summary>
+        /// Generate and save the document to the provided path.
+        /// </summary>
+        /// <param name="path">The location to save the generated document</param>
+        /// <returns></returns>
+        public void GenerateDocumentToFile(string path)
+        {
+            //Generate a document
+            GenerateDocument();
+            SaveGeneratedDocument(path);
+        }
+
+        /// <summary>
+        /// Generate the document
+        /// </summary>
+        public Task GenerateDocumentAsync()
+        {
+            return Task.Run(() => GenerateDocument());
+        }
+
+        /// <summary>
+        /// Save the generated document to the provided path.
+        /// </summary>
+        /// <param name="path">The location to save the generated document</param>
+        /// <returns></returns>
+        public Task SaveGeneratedDocumentAsync(string path)
+        {
+            return Task.Run(() => SaveGeneratedDocument(path));
+        }
+
+        /// <summary>
+        /// Generate and save the document to the provided path.
+        /// </summary>
+        /// <param name="path">The location to save the generated document</param>
+        /// <returns></returns>
+        public Task GenerateDocumentToFileAsync(string path)
+        {
+            return Task.Run(() => GenerateDocumentToFile(path));
+        }
+        #endregion
     }
 }

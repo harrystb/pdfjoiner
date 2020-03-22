@@ -19,7 +19,7 @@ namespace pdfjoiner.Core.Models
         public DocumentListModel DocumentList { get; set; }
         public string JoinString { get; set; }
 
-        public List<DocumentPageModel> DocumentPageList { get; set; }
+        public List<DocumentSegmentModel> DocumentSegments { get; set; }
         #endregion
 
         #region Attributes
