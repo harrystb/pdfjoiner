@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <PublishTrimmed>True</PublishTrimmed>
     <PublishReadyToRun>True</PublishReadyToRun>
@@ -14,12 +14,18 @@
   <ItemGroup>
     <None Remove="Images\AddPageButton.png" />
     <None Remove="Images\bannerlogo.png" />
+    <None Remove="Images\drive.png" />
+    <None Remove="Images\file.png" />
+    <None Remove="Images\folder.png" />
     <None Remove="Images\GenerateButton.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Images\AddPageButton.png" />
     <Resource Include="Images\bannerlogo.png" />
+    <Resource Include="Images\drive.png" />
+    <Resource Include="Images\file.png" />
+    <Resource Include="Images\folder.png" />
     <Resource Include="Images\GenerateButton.png" />
   </ItemGroup>
 
@@ -40,6 +46,10 @@
 
   <ItemGroup>
     <Folder Include="Fonts\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\pdfjoiner.Core\pdfjoiner.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-namespace pdfjoiner
+namespace pdfjoiner.DesktopClient
 {
     public class BaseViewModel : INotifyPropertyChanged
     {

@@ -5,8 +5,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
+using pdfjoiner.Core.Generator;
+using pdfjoiner.Core.Models;
 
-namespace pdfjoiner
+namespace pdfjoiner.DesktopClient
 {
     /// <summary>
     /// View model class for the main view of PDFJoiner.
@@ -20,24 +22,20 @@ namespace pdfjoiner
         /// </summary>
         public MainViewModel()
         {
+            DocumentList = new ObservableCollection<DocumentModel>();
+            DocumentSegments = new ObservableCollection<DocumentSegmentModel>();
+
             //register all of the button functions as delegate commands
             _GenerateDocument = new DelegateCommand(OnGenerateDocumentButton);
             _AddDocument = new DelegateCommand(OnAddDocumentButton);
             _AddPages = new DelegateCommand(OnAddPagesButton);
-            _ShowTerminal = new DelegateCommand(OnShowTerminalButton);
             _CancelGeneration = new DelegateCommand(OnCancelGenerationButton);
             _ResetForm = new DelegateCommand(OnResetFormButton);
-            //Create the document generator and register status callback
-            DocGenerator = new DocumentGenerator();
-            DocGenerator.SetStatusChangedCallback(SetStatusTextboxContent);
-            //Set the initial status text;
-            SetStatusTextboxContent("Welcome, please add a document to get started.", DocumentGenerator.StatusColourState.Green);
+
         }
         #endregion
 
         #region Properties
-
-        private readonly DocumentGenerator DocGenerator;
 
         private string _FilenameText = string.Empty;
         /// <summary>
@@ -114,15 +112,17 @@ namespace pdfjoiner
         }
 
 
-        private ObservableCollection<string> _DocumentItemList = new ObservableCollection<string>();
-        public ObservableCollection<string> DocumentItemList
+        private ObservableCollection<DocumentModel> _DocumentList;
+        private ObservableCollection<DocumentSegmentModel> DocumentSegments;
+
+        public ObservableCollection<DocumentModel> DocumentList
         {
-            get => _DocumentItemList;
-            set => SetProperty(ref _DocumentItemList, value);
+            get => _DocumentList;
+            set => SetProperty(ref _DocumentList, value);
         }
 
-        private string _SelectedDocument = string.Empty;
-        public string SelectedDocument
+        private DocumentModel? _SelectedDocument;
+        public DocumentModel? SelectedDocument
         {
             get
             {
@@ -136,18 +136,7 @@ namespace pdfjoiner
                 //Clear the AddPageText field
                 AddPageText = "";
                 //if the selected document is empty, clear out document panel
-                if (string.IsNullOrEmpty(SelectedDocument))
-                {
-                    FilenameText = "";
-                    PathText = "";
-                    NumPagesText = "";
-                    return;
-                }
-                //get the ID of the document
-                string id = _SelectedDocument.Split(':')[0];
-                //Update the title, path and num pages based on the new selection
-                DocumentItem? selectedDocument = DocGenerator.GetDocument(id);
-                if (selectedDocument == null)
+                if (_SelectedDocument == null)
                 {
                     FilenameText = "";
                     PathText = "";
@@ -155,9 +144,9 @@ namespace pdfjoiner
                     return;
                 }
                 //update the text boxes with the document information.
-                FilenameText = selectedDocument.Filename;
-                PathText = selectedDocument.Path;
-                NumPagesText = selectedDocument.NumberOfPages;
+                FilenameText = _SelectedDocument.Name;
+                PathText = _SelectedDocument.FullPath;
+                NumPagesText = _SelectedDocument.NumPages.ToString();
             }
         }
 
@@ -165,20 +154,21 @@ namespace pdfjoiner
 
         #region Methods
 
-        private void SetStatusTextboxContent(string newStatus, DocumentGenerator.StatusColourState colourState)
+        private void SetStatusTextboxContent(string newStatus, string colour)
         {
             StatusText = newStatus;
-            switch (colourState)
+            if (colour == "Green")
             {
-                case (DocumentGenerator.StatusColourState.Green):
                     StatusBrush = (Brush)new BrushConverter().ConvertFromString("Green");
-                    break;
-                case (DocumentGenerator.StatusColourState.Red):
+            } else if (colour == "Red")
+            {
                     StatusBrush = (Brush)new BrushConverter().ConvertFromString("Red");
-                    break;
-                case (DocumentGenerator.StatusColourState.Orange):
+            } else if (colour == "Orange")
+            {
                     StatusBrush = (Brush)new BrushConverter().ConvertFromString("Orange");
-                    break;
+            } else
+            {
+                    StatusBrush = (Brush)new BrushConverter().ConvertFromString("Grey");
             }
         }
 
@@ -189,7 +179,7 @@ namespace pdfjoiner
         private readonly DelegateCommand _GenerateDocument;
         private void OnGenerateDocumentButton(object commandParameter)
         {
-            DocGenerator.Generate(GenerationText);
+            SetStatusTextboxContent("Not working yet..", "Red");
         }
 
         /// <summary>
@@ -207,19 +197,13 @@ namespace pdfjoiner
             FileDialog1.ShowDialog();
             if (FileDialog1.FileName == "")
             {
-                SetStatusTextboxContent("No file selected.", DocumentGenerator.StatusColourState.Orange);
+                SetStatusTextboxContent("No file selected.", "Orange");
                 return;
             }
-            string? key = DocGenerator.AddDocumentToList(FileDialog1.FileName);
-            if (string.IsNullOrEmpty(key))
-            {
-                SetStatusTextboxContent("Document is already in the list.", DocumentGenerator.StatusColourState.Orange);
-                return;
-            }
-            string listText = key + ": " + DocGenerator.GetDocument(key)?.Filename ?? "Unknown";
-            DocumentItemList.Add(listText);
-            SelectedDocument = listText;
-            SetStatusTextboxContent("Document sucessfully added.", DocumentGenerator.StatusColourState.Green);
+            var Document = new DocumentModel(FileDialog1.FileName);
+            DocumentList.Add(Document);
+            SelectedDocument = Document;
+            SetStatusTextboxContent("Document sucessfully added.", "Green");
         }
 
         /// <summary>
@@ -232,12 +216,12 @@ namespace pdfjoiner
             //Validate the page string
             if (!ValidateAddPageString())
             {
-                SetStatusTextboxContent("Invalid character entered. Valid Example: 1,2-3,5-,-6", DocumentGenerator.StatusColourState.Red);
+                SetStatusTextboxContent("Invalid character entered. Valid Example: 1,2-3,5-,-6", "Red");
                 return;
             }
 
             //Get the document ID
-            var id = _SelectedDocument.Split(':')[0];
+            var id = "TODO";
 
             foreach (var segment in AddPageText.Split(','))
             {
@@ -246,17 +230,7 @@ namespace pdfjoiner
                 else
                     GenerationText = $"{GenerationText},{id}{segment}";
             }
-            SetStatusTextboxContent("Pages added to the generation string.", DocumentGenerator.StatusColourState.Green);
-        }
-
-        /// <summary>
-        /// Event to show/hide the terminal
-        /// </summary>
-        public ICommand ShowTerminal => _ShowTerminal;
-        private readonly DelegateCommand _ShowTerminal;
-        private void OnShowTerminalButton(object commandParameter)
-        {
-            DocGenerator.ToggleProcessWindowVisibility();
+            SetStatusTextboxContent("Pages added to the generation string.", "Green");
         }
 
         /// <summary>
@@ -267,15 +241,14 @@ namespace pdfjoiner
         private void OnCancelGenerationButton(object commandParameter)
         {
             //Tell the document generator to stop
-            bool success = DocGenerator.TerminateGeneration();
+            SetStatusTextboxContent("Not implemented yet.", "Red");
             //set status text based on whether the termination was successful
-            if (success)
-            {
-                SetStatusTextboxContent("Document Generation stopped.", DocumentGenerator.StatusColourState.Green);
-                return;
-            }
-            SetStatusTextboxContent("Document Generation failed to stop.", DocumentGenerator.StatusColourState.Red);
-
+            //if (success)
+            //{
+            //    SetStatusTextboxContent("Document Generation stopped.", "Green");
+            //    return;
+            //}
+            //SetStatusTextboxContent("Document Generation failed to stop.", DocumentGenerator.StatusColourState.Red);
         }
 
         /// <summary>
@@ -285,16 +258,13 @@ namespace pdfjoiner
         private readonly DelegateCommand _ResetForm;
         private void OnResetFormButton(object commandParameter)
         {
+            //Clear the document lists
+            DocumentList.Clear();
+            DocumentSegments.Clear();
             //Reset the selected document panel
-            SelectedDocument = "";
+            SelectedDocument = null;
             //Reset the document generator
-            DocGenerator.ResetDocumentList();
-            //Clear the document item list
-            DocumentItemList.Clear();
-            //Reset the Generation Text
             GenerationText = "";
-            //write some status text
-            SetStatusTextboxContent("All fields reset.", DocumentGenerator.StatusColourState.Green);
         }
 
         #endregion

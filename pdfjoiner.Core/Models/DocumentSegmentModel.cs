@@ -24,9 +24,7 @@
         /// <param name="pageIndex">The page to include</param>
         public DocumentSegmentModel(DocumentModel document, int pageIndex)
         {
-            if (document == null)
-                throw new System.ArgumentNullException(nameof(document));
-            Document = document;
+            Document = document ?? throw new System.ArgumentNullException(nameof(document));
             SetPage(pageIndex);
         }
         #endregion

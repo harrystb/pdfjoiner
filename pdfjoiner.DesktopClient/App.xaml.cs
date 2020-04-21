@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace pdfjoiner
+namespace pdfjoiner.DesktopClient
 {
     /// <summary>
     /// Interaction logic for App.xaml
