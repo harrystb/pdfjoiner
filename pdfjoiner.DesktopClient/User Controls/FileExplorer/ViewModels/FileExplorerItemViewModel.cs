@@ -39,11 +39,20 @@ namespace pdfjoiner.DesktopClient.UserControls.ViewModels
             get
             {
                 if (Type == FileExplorerItemType.Drive)
+                {
                     return "drive";
+                }
                 else if (Type == FileExplorerItemType.Folder)
-                    return "folder";
+                {
+                    if (IsExpanded)
+                        return "folder-open";
+                    else
+                        return "folder-closed";
+                }
                 else
+                {
                     return "file";
+                }
             }
         }
 
@@ -69,9 +78,13 @@ namespace pdfjoiner.DesktopClient.UserControls.ViewModels
             set 
             {
                 if (value == true)
+                {
                     Expand();
+                    SendPropertyChangedEvent(nameof(ImageName));
+                }
                 else
                     ClearChildren();
+                    SendPropertyChangedEvent(nameof(ImageName));
             }
         }
         #endregion

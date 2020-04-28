@@ -6,9 +6,8 @@
              xmlns:local="clr-namespace:pdfjoiner.DesktopClient.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="80" >
-    <Grid>
-        <TreeView x:Name="FolderView" ItemsSource="{Binding Items}">
-
+    <Grid x:Name="LayoutRoot">
+        <TreeView x:Name="FolderView" ItemsSource="{Binding Items}" SelectedValuePath="FullPath" SelectedItemChanged="SelectionChanged">
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />

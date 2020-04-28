@@ -7,6 +7,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using pdfjoiner.Core.Generator;
 using pdfjoiner.Core.Models;
+using System.Windows;
+using System.Collections.Specialized;
+using System;
+using System.Windows.Navigation;
 
 namespace pdfjoiner.DesktopClient
 {
@@ -28,11 +32,18 @@ namespace pdfjoiner.DesktopClient
             //register all of the button functions as delegate commands
             _GenerateDocument = new DelegateCommand(OnGenerateDocumentButton);
             _AddDocument = new DelegateCommand(OnAddDocumentButton);
+            _AddBrowseDocument = new DelegateCommand(OnBrowseButton);
             _AddPages = new DelegateCommand(OnAddPagesButton);
             _CancelGeneration = new DelegateCommand(OnCancelGenerationButton);
-            _ResetForm = new DelegateCommand(OnResetFormButton);
+            _ResetDocumentList = new DelegateCommand(OnResetFormButton);
 
         }
+
+        private void DocumentList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region Properties
@@ -68,25 +79,26 @@ namespace pdfjoiner.DesktopClient
             set => SetProperty(ref _NumPagesText, value);
         }
 
-        private string _AddPageText = string.Empty;
+
+        private string _StartPageText = string.Empty;
         /// <summary>
-        /// String for the pages which are to be added to the generation string.
-        /// </summary>
-        public string AddPageText
+        /// The bound property for the start index of the document segment to be added.
+        public string StartPageText
         {
-            get => _AddPageText;
-            set => SetProperty(ref _AddPageText, value);
+            get => _StartPageText;
+            set => SetProperty(ref _StartPageText, value);
         }
 
-        private string _GenerationText = string.Empty;
+        private string _EndPageText = string.Empty;
         /// <summary>
-        /// String for the pages which are to be added to the generation string.
+        /// The bound property for the end index of the document segment to be added.
         /// </summary>
-        public string GenerationText
+        public string EndPageText
         {
-            get => _GenerationText;
-            set => SetProperty(ref _GenerationText, value);
+            get => _EndPageText;
+            set => SetProperty(ref _EndPageText, value);
         }
+
 
         private string _StatusText = string.Empty;
         /// <summary>
@@ -97,6 +109,18 @@ namespace pdfjoiner.DesktopClient
             get => _StatusText;
             set => SetProperty(ref _StatusText, value);
         }
+
+
+        private string _SelectedDocumentPath = string.Empty;
+        /// <summary>
+        /// The path selected by the explorer control.
+        /// </summary>
+        public string SelectedDocumentPath
+        {
+            get => _SelectedDocumentPath;
+            set => SetProperty(ref _SelectedDocumentPath, value);
+        }
+
 
         private Brush _StatusBrush = (Brush)new BrushConverter().ConvertFromString("Green");
         public Brush StatusBrush
@@ -112,8 +136,13 @@ namespace pdfjoiner.DesktopClient
         }
 
 
+        private ObservableCollection<DocumentSegmentModel> _DocumentSegments;
+        public ObservableCollection<DocumentSegmentModel> DocumentSegments
+        {
+            get => _DocumentSegments;
+            set => SetProperty(ref _DocumentSegments, value);
+        }
         private ObservableCollection<DocumentModel> _DocumentList;
-        private ObservableCollection<DocumentSegmentModel> DocumentSegments;
 
         public ObservableCollection<DocumentModel> DocumentList
         {
@@ -133,8 +162,9 @@ namespace pdfjoiner.DesktopClient
             {
                 //set the selected document before trying to use it
                 SetProperty(ref _SelectedDocument, value);
-                //Clear the AddPageText field
-                AddPageText = "";
+                //Clear the index text boxes
+                StartPageText = "";
+                EndPageText = "";
                 //if the selected document is empty, clear out document panel
                 if (_SelectedDocument == null)
                 {
@@ -179,15 +209,33 @@ namespace pdfjoiner.DesktopClient
         private readonly DelegateCommand _GenerateDocument;
         private void OnGenerateDocumentButton(object commandParameter)
         {
-            SetStatusTextboxContent("Not working yet..", "Red");
+            if (DocumentSegments.Count == 0)
+            { 
+                SetStatusTextboxContent("No documents segments selected.", "Yellow");
+                return;
+            }
+            var generator = new PdfGenerator(DocumentSegments.AsEnumerable());
+            generator.GenerateDocument();
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "PDF Files | *.pdf",
+                Title = "Save the PDF File"
+            };
+            saveFileDialog.ShowDialog();
+            if (saveFileDialog.FileName != "")
+            {
+                generator.SaveGeneratedDocument(saveFileDialog.FileName);
+                SetStatusTextboxContent("Document generated successfully.", "Green");
+            }
         }
 
         /// <summary>
         /// Event to add a document to the list
         /// </summary>
-        public ICommand AddDocument => _AddDocument;
-        private readonly DelegateCommand _AddDocument;
-        private void OnAddDocumentButton(object commandParameter)
+        public ICommand AddBrowseDocument => _AddBrowseDocument;
+        private readonly DelegateCommand _AddBrowseDocument;
+        private void OnBrowseButton(object commandParameter)
         {
             OpenFileDialog FileDialog1 = new OpenFileDialog
             {
@@ -205,6 +253,38 @@ namespace pdfjoiner.DesktopClient
             SelectedDocument = Document;
             SetStatusTextboxContent("Document sucessfully added.", "Green");
         }
+        /// <summary>
+        /// Event to add a document to the list
+        /// </summary>
+        public ICommand AddDocument => _AddDocument;
+        private readonly DelegateCommand _AddDocument;
+        private void OnAddDocumentButton(object commandParameter)
+        {
+            DocumentModel Document = null;
+            try
+            {
+                Document = new DocumentModel(SelectedDocumentPath);
+            }
+            catch
+            {
+                SetStatusTextboxContent("Failed to open the selected document. Is it a PDF?.", "Red");
+                return;
+            }
+            DocumentList.Add(Document);
+            SelectedDocument = Document;
+            SetStatusTextboxContent("Document sucessfully added.", "Green");
+        }
+
+        public void AddMultipleDocuments(string[] files)
+        {
+            foreach (var file in files)
+            {
+                var Document = new DocumentModel(file);
+                DocumentList.Add(Document);
+                SelectedDocument = Document;
+            }
+            SetStatusTextboxContent("Documents sucessfully added.", "Green");
+        }
 
         /// <summary>
         /// Event to add a group of pages to the generation string.
@@ -213,24 +293,24 @@ namespace pdfjoiner.DesktopClient
         private readonly DelegateCommand _AddPages;
         private void OnAddPagesButton(object commandParameter)
         {
-            //Validate the page string
-            if (!ValidateAddPageString())
+            int startIndex;
+            int endIndex;
+            try
             {
-                SetStatusTextboxContent("Invalid character entered. Valid Example: 1,2-3,5-,-6", "Red");
+                //index = page number - 1
+                startIndex = int.Parse(StartPageText) - 1; 
+                endIndex = int.Parse(EndPageText) - 1;
+            } 
+            catch
+            {
+                SetStatusTextboxContent("invalid page numbers provided", "Red");
                 return;
             }
+            var newSegment = new DocumentSegmentModel(SelectedDocument, startIndex, endIndex);
+            DocumentSegments.Add(newSegment);
 
-            //Get the document ID
-            var id = "TODO";
+            SetStatusTextboxContent("Document segment added.", "Green");
 
-            foreach (var segment in AddPageText.Split(','))
-            {
-                if (string.IsNullOrEmpty(GenerationText))
-                    GenerationText = id + segment;
-                else
-                    GenerationText = $"{GenerationText},{id}{segment}";
-            }
-            SetStatusTextboxContent("Pages added to the generation string.", "Green");
         }
 
         /// <summary>
@@ -254,8 +334,8 @@ namespace pdfjoiner.DesktopClient
         /// <summary>
         /// Event to reset all fieds.
         /// </summary>
-        public ICommand ResetForm => _ResetForm;
-        private readonly DelegateCommand _ResetForm;
+        public ICommand ResetDocumentList => _ResetDocumentList;
+        private readonly DelegateCommand _ResetDocumentList;
         private void OnResetFormButton(object commandParameter)
         {
             //Clear the document lists
@@ -263,25 +343,11 @@ namespace pdfjoiner.DesktopClient
             DocumentSegments.Clear();
             //Reset the selected document panel
             SelectedDocument = null;
-            //Reset the document generator
-            GenerationText = "";
         }
 
         #endregion
 
         #region Helpers
-
-        private bool ValidateAddPageString()
-        {
-
-            foreach (var segment in AddPageText.Split(','))
-            {
-                HashSet<char> AllowedChars = new HashSet<char> { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-' };
-                if (!segment.All(AllowedChars.Contains))
-                    return false;
-            }
-            return true;
-        }
 
         #endregion
 

@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
+using System.Windows;
+
 namespace pdfjoiner.DesktopClient
 {
     public class BaseViewModel : INotifyPropertyChanged
@@ -18,5 +21,12 @@ namespace pdfjoiner.DesktopClient
             }
             return false;
         }
+
+        protected void SendPropertyChangedEvent(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+    
     }
 }

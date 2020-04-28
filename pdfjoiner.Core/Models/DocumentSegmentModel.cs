@@ -1,4 +1,6 @@
-﻿namespace pdfjoiner.Core.Models
+﻿using System.Reflection.Metadata.Ecma335;
+
+namespace pdfjoiner.Core.Models
 {
     public class DocumentSegmentModel
     {
@@ -42,10 +44,29 @@
         public int StartPageIndex { get; private set; }
 
         /// <summary>
+        /// The page number for the first page in the range
+        /// </summary>
+        public int StartPageNumber
+        {
+            get { return StartPageIndex + 1; }
+        }
+
+        /// <summary>
         /// The end of the page range
         /// </summary>
         public int EndPageIndex { get; private set; }
+        /// <summary>
+        /// The page number for the last page in the range
+        /// </summary>
+        public int EndPageNumber
+        {
+            get { return EndPageIndex + 1; }
+        }
 
+        /// <summary>
+        /// Retreive the name of the document
+        /// </summary>
+        public string DocumentName { get => Document?.Name; }
         #endregion
 
         #region Methods

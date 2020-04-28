@@ -69,11 +69,11 @@ namespace pdfjoiner.Core.Models
         /// Gets the specified page from the Pdf.
         /// Note: Pdf is numbered from 0
         /// </summary>
-        /// <param name="pageNumber">The page to take</param>
+        /// <param name="pageIndex">The index of the page to take</param>
         /// <returns></returns>
-        public PdfPage GetPage(int pageNumber)
+        public PdfPage GetPage(int pageIndex)
         {
-            return Pdf.Pages[pageNumber];
+            return Pdf.Pages[pageIndex];
         }
         #endregion
     }

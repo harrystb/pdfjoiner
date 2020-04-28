@@ -16,7 +16,8 @@
     <None Remove="Images\bannerlogo.png" />
     <None Remove="Images\drive.png" />
     <None Remove="Images\file.png" />
-    <None Remove="Images\folder.png" />
+    <None Remove="Images\folder-closed.png" />
+    <None Remove="Images\folder-open.png" />
     <None Remove="Images\GenerateButton.png" />
   </ItemGroup>
 
@@ -25,7 +26,8 @@
     <Resource Include="Images\bannerlogo.png" />
     <Resource Include="Images\drive.png" />
     <Resource Include="Images\file.png" />
-    <Resource Include="Images\folder.png" />
+    <Resource Include="Images\folder-closed.png" />
+    <Resource Include="Images\folder-open.png" />
     <Resource Include="Images\GenerateButton.png" />
   </ItemGroup>
 

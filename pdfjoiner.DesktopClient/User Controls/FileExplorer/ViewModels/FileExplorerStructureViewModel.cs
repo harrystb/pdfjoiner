@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Controls;
 
 namespace pdfjoiner.DesktopClient.UserControls.ViewModels
 {
