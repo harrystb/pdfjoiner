@@ -6,60 +6,55 @@
         xmlns:controls="clr-namespace:pdfjoiner.DesktopClient.UserControls"
         mc:Ignorable="d"
         Title="PDFJoiner" Height="600" Width="900" MinHeight="600" MinWidth="600">
-    <Grid Background="#FF5F5F5F" DragDrop.Drop="DragDropEventHandler" AllowDrop="True">
+    <Grid Background="{StaticResource BackgroundDarkBrush}" DragDrop.Drop="DragDropEventHandler" AllowDrop="True">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="150px" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="3*" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <!--File Explorer-->
-        <Grid Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" Background="#FFC9C7CC" Margin="20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Button x:Name="BrowseButton" Command="{Binding Path=AddBrowseDocument}" Grid.Row="0" Grid.Column="0" Padding="15 5" Margin="5">Browse</Button>
-            <Button x:Name="AddDocumentButton" Command="{Binding Path=AddDocument}" Grid.Row="0" Grid.Column="1" Padding="15 5" Margin="5">Add Selected</Button>
-            <controls:FileExplorer Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="10" Background="white" SelectedPath="{Binding SelectedDocumentPath, Mode=OneWayToSource}"></controls:FileExplorer>
-        </Grid>
         <!--Banner logo-->
         <Rectangle Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"  Fill="#FFC9C7CC" />
         <Image Source="Images/bannerlogo.png" Grid.ColumnSpan="3" Grid.Column="0" Grid.Row="0" />
-        <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="20 20 20 0" Background="#FFC9C7CC">
-            <TextBox Margin ="5" Background="White" Foreground="{Binding Path=StatusBrush}" IsReadOnly="True" Text="{Binding Path=StatusText}" />
-        </Border>
-        <!--Left panel containing list of documents that have been added into the form-->
-        <Grid Grid.Row="2" Grid.Column="1" Margin="20" Background="#FFC9C7CC">
+        <!-- Content -->
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400px" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
-                <!--<RowDefinition Height="Auto" />-->
             </Grid.RowDefinitions>
-            <Label Background="Transparent" Grid.Row="0" Grid.Column="0">Documents:</Label>
-            <Button x:Name="ResetButton" Command="{Binding ResetDocumentList}" Grid.Row="0" Grid.Column="1" Padding="15 5" Margin="5">Reset</Button>
-            <ListBox x:Name="FilesListBox" ItemsSource="{Binding Path=DocumentList}" SelectedItem="{Binding Path=SelectedDocument}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5 0 5 5">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </Grid>
-        <!--Right panel containing document details and generation details-->
-        <Grid Grid.Row="2" Grid.Column="2" Margin="0,2,0,-2">
+            <!-- Document List -->
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="BrowseButton" Command="{Binding Path=AddBrowseDocument}" Margin="10">Browse</Button>
+                    <Button x:Name="ResetButton" Command="{Binding ResetDocumentList}" Margin="10">Reset</Button>
+                </StackPanel>
+                <!--Left panel containing list of documents that have been added into the form-->
+                <Grid Margin="20" Background="#FFC9C7CC">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <!--<RowDefinition Height="Auto" />-->
+                    </Grid.RowDefinitions>
+                    <Label Background="Transparent" Grid.Row="0" Grid.Column="0">Documents:</Label>
+                    <ListBox x:Name="FilesListBox" ItemsSource="{Binding Path=DocumentList}" SelectedItem="{Binding Path=SelectedDocument}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5 0 5 5">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </StackPanel>
+            <!--Right panel containing document details and generation details-->
+            <Grid Grid.Row="2" Grid.Column="2" Margin="0,2,0,-2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -142,6 +137,7 @@
                 </ListView>
                 <Button x:Name="GenerateButton" Command="{Binding Path=GenerateDocument}" Grid.Row="2" Grid.Column="0"  Padding="15 5" Margin="5">Generate</Button>
             </Grid>
+        </Grid>
         </Grid>
     </Grid>
 </Window>

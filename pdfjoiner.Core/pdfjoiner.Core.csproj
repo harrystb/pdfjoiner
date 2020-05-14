@@ -5,7 +5,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="pdfsharpcore" Version="1.1.21" />
+    <PackageReference Include="pdfsharpcore" Version="1.1.24" />
   </ItemGroup>
 
 </Project>
