@@ -150,13 +150,17 @@ namespace pdfjoiner.DesktopClient
             set => SetProperty(ref _DocumentList, value);
         }
 
-        private DocumentModel? _SelectedDocument;
-        public DocumentModel? SelectedDocument
+        private ObservableCollection<DirectoryItemViewModel> _Items;
+        public ObservableCollection<DirectoryItemViewModel> Items
         {
-            get
-            {
-                return _SelectedDocument;
-            }
+            get => _Items;
+            set => SetProperty(ref _Items, value);
+        }
+
+        private DirectoryItemViewModel? _SelectedDocument;
+        public DirectoryItemViewModel? SelectedDocument
+        {
+            get => _SelectedDocument;
 
             set
             {
@@ -176,9 +180,11 @@ namespace pdfjoiner.DesktopClient
                 //update the text boxes with the document information.
                 FilenameText = _SelectedDocument.Name;
                 PathText = _SelectedDocument.FullPath;
-                NumPagesText = _SelectedDocument.NumPages.ToString();
+                NumPagesText = _SelectedDocument.Document.NumPages.ToString();
             }
         }
+
+
 
         #endregion
 
@@ -237,10 +243,14 @@ namespace pdfjoiner.DesktopClient
         private readonly DelegateCommand _AddBrowseDocument;
         private void OnBrowseButton(object commandParameter)
         {
+            FolderBrowserDialog folderBrowser = new FolderBrowserDialog();
+
             OpenFileDialog FileDialog1 = new OpenFileDialog
             {
                 Filter = "PDF Files|*.pdf",
-                Title = "Select a PDF File"
+                Title = "Select a PDF File or a folder",
+                Multiselect = true,
+                
             };
             FileDialog1.ShowDialog();
             if (FileDialog1.FileName == "")
@@ -248,6 +258,8 @@ namespace pdfjoiner.DesktopClient
                 SetStatusTextboxContent("No file selected.", "Orange");
                 return;
             }
+            var a = FileDialog1.
+            var newDirectoryItem = new DirectoryItemViewModel()
             var Document = new DocumentModel(FileDialog1.FileName);
             DocumentList.Add(Document);
             SelectedDocument = Document;

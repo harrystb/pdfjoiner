@@ -1,17 +1,23 @@
-﻿using System.Collections.ObjectModel;
+﻿using pdfjoiner.Core.Models;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 
-namespace pdfjoiner.DesktopClient.UserControls.ViewModels
+namespace pdfjoiner.DesktopClient
 {
-    public class FileExplorerItemViewModel : BaseViewModel
+    public class DirectoryItemViewModel : BaseViewModel
     {
         #region Constructor
-        public FileExplorerItemViewModel(string fullpath, FileExplorerItemType type, string name)
+        public DirectoryItemViewModel(string fullpath, DirectoryItemType type, string name)
         {
             FullPath = fullpath;
             Type = type;
             Name = name;
+
+            //only load in the document when it is added to the 
+            Document = null;
+
+            HasPdfExtension = DirectoryHelpers.HasPdfFileExtension(FullPath);
 
             ClearChildren();
 
@@ -20,8 +26,25 @@ namespace pdfjoiner.DesktopClient.UserControls.ViewModels
         #endregion
 
         #region Properties
-        private FileExplorerItemType _Type;
-        public FileExplorerItemType Type 
+
+        private readonly bool HasPdfExtension;
+
+        private DocumentModel _Document;
+        public DocumentModel Document {
+            get
+            {
+                if (_Document == null && HasPdfExtension)
+                    _Document = new DocumentModel(FullPath);
+                return _Document;
+            }
+            set
+            {
+                _Document = value;
+            } 
+        }
+
+        private DirectoryItemType _Type;
+        public DirectoryItemType Type 
         {
             get => _Type;
             set => SetProperty(ref _Type, value);
@@ -38,11 +61,11 @@ namespace pdfjoiner.DesktopClient.UserControls.ViewModels
         {
             get
             {
-                if (Type == FileExplorerItemType.Drive)
+                if (Type == DirectoryItemType.Drive)
                 {
                     return "drive";
                 }
-                else if (Type == FileExplorerItemType.Folder)
+                else if (Type == DirectoryItemType.Folder)
                 {
                     if (IsExpanded)
                         return "folder-open";
@@ -63,14 +86,14 @@ namespace pdfjoiner.DesktopClient.UserControls.ViewModels
             set => SetProperty(ref _Name, value);
         }
 
-        private ObservableCollection<FileExplorerItemViewModel> _Children;
-        public ObservableCollection<FileExplorerItemViewModel> Children 
+        private ObservableCollection<DirectoryItemViewModel> _Children;
+        public ObservableCollection<DirectoryItemViewModel> Children 
         {
             get => _Children;
             set => SetProperty(ref _Children, value);
         }
 
-        public bool CanExpand { get { return Type != FileExplorerItemType.File; } }
+        public bool CanExpand { get { return Type != DirectoryItemType.File; } }
 
         public bool IsExpanded
         {
@@ -79,7 +102,7 @@ namespace pdfjoiner.DesktopClient.UserControls.ViewModels
             {
                 if (value == true)
                 {
-                    Expand();
+                    Expand(null);
                     SendPropertyChangedEvent(nameof(ImageName));
                 }
                 else
@@ -95,23 +118,23 @@ namespace pdfjoiner.DesktopClient.UserControls.ViewModels
 
         private void ClearChildren()
         {
-            Children = new ObservableCollection<FileExplorerItemViewModel>();
+            Children = new ObservableCollection<DirectoryItemViewModel>();
 
             // Put in a dummy child for expand arror
-            if (Type != FileExplorerItemType.File)
+            if (Type != DirectoryItemType.File)
                 Children.Add(null);
         }
 
         private void Expand(object p)
         {
-            if (Type == FileExplorerItemType.File)
+            if (Type == DirectoryItemType.File)
                 return;
 
             //Get the children
 
-            var newChildren = FileExplorerHelpers.GetFolderContents(FullPath);
-            Children = new ObservableCollection<FileExplorerItemViewModel>(
-                newChildren.Select(child => new FileExplorerItemViewModel(child.FullPath, child.Type, child.Name)));
+            var newChildren = DirectoryHelpers.GetFolderContents(FullPath);
+            Children = new ObservableCollection<DirectoryItemViewModel>(
+                newChildren.Select(child => new DirectoryItemViewModel(child.FullPath, child.Type, child.Name)));
 
         }
         #endregion

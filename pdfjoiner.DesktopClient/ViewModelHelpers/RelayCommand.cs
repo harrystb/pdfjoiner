@@ -5,14 +5,14 @@ namespace pdfjoiner.DesktopClient
 {
     public class RelayCommand : ICommand
     {
-        private readonly Action _Action;
+        private readonly Action<object> _Action;
 
         /// <summary>
         /// Event that is fired when the <see cref="CanExecute(object)"/> value has changed.
         /// </summary>
         public event EventHandler CanExecuteChanged = (sender, e) => { };
 
-        public RelayCommand(Action action)
+        public RelayCommand(Action<object> action)
         {
             _Action = action;
         }
@@ -24,7 +24,7 @@ namespace pdfjoiner.DesktopClient
 
         public void Execute(object parameter)
         {
-            _Action();
+            _Action(parameter);
         }
     }
 }

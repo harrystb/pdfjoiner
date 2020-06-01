@@ -93,4 +93,8 @@
     </Page>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="View Model\Design Models\" />
+  </ItemGroup>
+
 </Project>

@@ -11,7 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace pdfjoiner.DesktopClient.User_Controls.DocumentListControl
+namespace pdfjoiner.DesktopClient.UserControls
 {
     /// <summary>
     /// Interaction logic for DocumentListControl.xaml

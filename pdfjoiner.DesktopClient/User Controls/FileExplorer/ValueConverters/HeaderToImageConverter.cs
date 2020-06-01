@@ -12,7 +12,8 @@ namespace pdfjoiner.DesktopClient.UserControls
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return new BitmapImage(new Uri($"pack://application:,,,/Images/{value}.png"));
+            //return new BitmapImage(new Uri($"pack://application:,,,/Images/{value}.png"));
+            return new BitmapImage(new Uri($"pack://application:,,,/pdfjoiner.DesktopClient;component/Images/{value}.png"));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

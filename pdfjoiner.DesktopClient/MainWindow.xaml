@@ -27,13 +27,17 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <!-- Document List -->
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Margin="20 0" Orientation="Horizontal">
                     <Button x:Name="BrowseButton" Command="{Binding Path=AddBrowseDocument}" Margin="10">Browse</Button>
                     <Button x:Name="ResetButton" Command="{Binding ResetDocumentList}" Margin="10">Reset</Button>
                 </StackPanel>
                 <!--Left panel containing list of documents that have been added into the form-->
-                <Grid Margin="20" Background="#FFC9C7CC">
+                <Grid Grid.Row="1" Margin="20" Background="#FFC9C7CC">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="auto" />
@@ -44,15 +48,16 @@
                         <!--<RowDefinition Height="Auto" />-->
                     </Grid.RowDefinitions>
                     <Label Background="Transparent" Grid.Row="0" Grid.Column="0">Documents:</Label>
-                    <ListBox x:Name="FilesListBox" ItemsSource="{Binding Path=DocumentList}" SelectedItem="{Binding Path=SelectedDocument}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5 0 5 5">
+                    <!--<ListBox x:Name="FilesListBox" ItemsSource="{Binding Path=DocumentList}" SelectedItem="{Binding Path=SelectedDocument}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5 0 5 5">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Name}" />
                             </DataTemplate>
                         </ListBox.ItemTemplate>
-                    </ListBox>
+                    </ListBox>-->
+                    <controls:FileExplorer Grid.Row="1" Margin="10 0 10 10" />
                 </Grid>
-            </StackPanel>
+            </Grid>
             <!--Right panel containing document details and generation details-->
             <Grid Grid.Row="2" Grid.Column="2" Margin="0,2,0,-2">
             <Grid.ColumnDefinitions>

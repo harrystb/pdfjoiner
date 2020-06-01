@@ -1,4 +1,5 @@
 ﻿using pdfjoiner.DesktopClient.UserControls.ViewModels;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -13,6 +14,7 @@ namespace pdfjoiner.DesktopClient.UserControls
         {
             InitializeComponent();
             LayoutRoot.DataContext = new FileExplorerStructureViewModel();
+            AddPathCommand = ;
         }
 
         /// <summary>
@@ -32,5 +34,19 @@ namespace pdfjoiner.DesktopClient.UserControls
         {
             SelectedPath = ((FileExplorerItemViewModel)e.NewValue).FullPath;
         }
+
+
+
+
+        public RelayCommand AddPathCommand
+        {
+            get { return (RelayCommand)GetValue(AddPathCommandProperty); }
+            set { SetValue(AddPathCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for AddPathCommand.  This enables animation, styling, binding, etc...
+        private static readonly DependencyPropertyKey AddPathCommandKey = DependencyProperty.RegisterReadOnly("AddPathCommand", typeof(RelayCommand), typeof(FileExplorer), new PropertyMetadata());
+        public static readonly DependencyProperty AddPathCommandProperty = AddPathCommandKey.DependencyProperty;
+
     }
 }
