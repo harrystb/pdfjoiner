@@ -41,7 +41,7 @@ namespace pdfjoiner.Core.Models
             if (lastIndex <= 0)
                 return false;
 
-            if (fullpath.Substring(lastIndex) != ".pdf")
+            if (!fullpath.Substring(lastIndex).Contains(".pdf",System.StringComparison.OrdinalIgnoreCase))
                 return false;
 
             return true;
@@ -58,7 +58,7 @@ namespace pdfjoiner.Core.Models
                 if (dirs.Length > 0)
                     items.AddRange(dirs.Select(dir => new DirectoryItem { FullPath = dir, Type = DirectoryItemType.Folder }));
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
                 // Ignore the excepts that can be thrown as we will just not add anything to the list for folders
             }
@@ -69,7 +69,7 @@ namespace pdfjoiner.Core.Models
                 if (files.Length > 0)
                     items.AddRange(files.Select(file => new DirectoryItem { FullPath = file, Type = DirectoryItemType.File }));
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
                 // Ignore the excepts that can be thrown as we will just not add anything to the list for files
             }

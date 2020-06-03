@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="clr-namespace:pdfjoiner.DesktopClient.UserControls"
+        xmlns:local="clr-namespace:pdfjoiner.DesktopClient"
         mc:Ignorable="d"
         Title="PDFJoiner" Height="600" Width="900" MinHeight="600" MinWidth="600">
     <Grid Background="{StaticResource BackgroundDarkBrush}" DragDrop.Drop="DragDropEventHandler" AllowDrop="True">
@@ -33,8 +33,9 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <StackPanel Margin="20 0" Orientation="Horizontal">
-                    <Button x:Name="BrowseButton" Command="{Binding Path=AddBrowseDocument}" Margin="10">Browse</Button>
-                    <Button x:Name="ResetButton" Command="{Binding ResetDocumentList}" Margin="10">Reset</Button>
+                    <Button x:Name="BrowseFileButton" Command="{Binding Path=AddBrowseDocument}" Padding="10" Margin="10">Add File</Button>
+                    <Button x:Name="BrowseFolderButton" Command="{Binding Path=AddBrowseFolder}" Padding="10" Margin="10">Add Folder</Button>
+                    <Button x:Name="ResetButton" Command="{Binding ResetDocumentList}" Padding="10" Margin="10">Reset</Button>
                 </StackPanel>
                 <!--Left panel containing list of documents that have been added into the form-->
                 <Grid Grid.Row="1" Margin="20" Background="#FFC9C7CC">
@@ -48,14 +49,22 @@
                         <!--<RowDefinition Height="Auto" />-->
                     </Grid.RowDefinitions>
                     <Label Background="Transparent" Grid.Row="0" Grid.Column="0">Documents:</Label>
-                    <!--<ListBox x:Name="FilesListBox" ItemsSource="{Binding Path=DocumentList}" SelectedItem="{Binding Path=SelectedDocument}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5 0 5 5">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Name}" />
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>-->
-                    <controls:FileExplorer Grid.Row="1" Margin="10 0 10 10" />
+                    <TreeView Grid.Row ="1" x:Name="FolderView" ItemsSource="{Binding Items}" SelectedItemChanged="SelectionChanged">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="{x:Type TreeViewItem}">
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Width="20" Margin="3" Source="{Binding ImageName, Converter={x:Static local:HeaderToImageConverter.Instance}}" />
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                                </StackPanel>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
                 </Grid>
             </Grid>
             <!--Right panel containing document details and generation details-->

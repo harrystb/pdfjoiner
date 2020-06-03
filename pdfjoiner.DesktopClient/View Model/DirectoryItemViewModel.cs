@@ -15,7 +15,7 @@ namespace pdfjoiner.DesktopClient
             Name = name;
 
             //only load in the document when it is added to the 
-            Document = null;
+            _Document = null;
 
             HasPdfExtension = DirectoryHelpers.HasPdfFileExtension(FullPath);
 
@@ -100,7 +100,7 @@ namespace pdfjoiner.DesktopClient
             get => Children?.Count(f => f != null) > 0;
             set 
             {
-                if (value == true)
+                if (value)
                 {
                     Expand(null);
                     SendPropertyChangedEvent(nameof(ImageName));
@@ -111,6 +111,13 @@ namespace pdfjoiner.DesktopClient
                     SendPropertyChangedEvent(nameof(ImageName));
                 }
             }
+        }
+
+        private bool _IsSelected = false;
+        public bool IsSelected
+        {
+            get => _IsSelected;
+            set => SetProperty(ref _IsSelected, value);
         }
         #endregion
 
@@ -132,7 +139,7 @@ namespace pdfjoiner.DesktopClient
 
             //Get the children
 
-            var newChildren = DirectoryHelpers.GetFolderContents(FullPath);
+            var newChildren = DirectoryHelpers.GetFolderContents(FullPath).Where(x => x.Type == DirectoryItemType.Folder || DirectoryHelpers.HasPdfFileExtension(x.FullPath));
             Children = new ObservableCollection<DirectoryItemViewModel>(
                 newChildren.Select(child => new DirectoryItemViewModel(child.FullPath, child.Type, child.Name)));
 

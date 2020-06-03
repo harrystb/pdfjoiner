@@ -1,5 +1,4 @@
-﻿using System.DirectoryServices.ActiveDirectory;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 
@@ -39,7 +38,10 @@ namespace pdfjoiner.DesktopClient
                 e.Handled = true;
 
         }
-
+        public void SelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            ((MainViewModel)DataContext).SelectedItemChangedEventHandler(sender, e);
+        }
         #endregion
     }
 }

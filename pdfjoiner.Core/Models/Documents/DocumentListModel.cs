@@ -93,18 +93,18 @@ namespace pdfjoiner.Core.Models
                 return "A";
 
             //get the last character
-            char lastChar = key[key.Length - 1];
+            char lastChar = key[^1];
 
             //increment the last character if it is not "Z" and return the new key
             if (lastChar != 'Z')
             {
                 lastChar++;
-                return key.Substring(0, key.Length - 1) + lastChar;
+                return key[0..^1] + lastChar;
             }
 
             //last letter is Z - need to increment the rest of the string, then set the last char to "A"
             // for example Z -> GetPossibleNextKey("") + "A" -> "AA"
-            return GetPossibleNextKey(key.Substring(0, key.Length - 1)) + "A";
+            return GetPossibleNextKey(key[0..^1]) + "A";
         }
 
         #endregion

@@ -79,7 +79,7 @@ namespace pdfjoiner.DesktopClient.UserControls.ViewModels
             {
                 if (value == true)
                 {
-                    Expand();
+                    Expand(null);
                     SendPropertyChangedEvent(nameof(ImageName));
                 }
                 else

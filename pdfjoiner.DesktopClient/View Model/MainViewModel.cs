@@ -1,16 +1,14 @@
 ﻿#nullable enable
 using Microsoft.Win32;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Windows.Input;
-using System.Windows.Media;
 using pdfjoiner.Core.Generator;
 using pdfjoiner.Core.Models;
-using System.Windows;
-using System.Collections.Specialized;
 using System;
-using System.Windows.Navigation;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace pdfjoiner.DesktopClient
 {
@@ -26,22 +24,17 @@ namespace pdfjoiner.DesktopClient
         /// </summary>
         public MainViewModel()
         {
-            DocumentList = new ObservableCollection<DocumentModel>();
-            DocumentSegments = new ObservableCollection<DocumentSegmentModel>();
+            _Items = new ObservableCollection<DirectoryItemViewModel>();
+            _DocumentSegments = new ObservableCollection<DocumentSegmentModel>();
 
             //register all of the button functions as delegate commands
             _GenerateDocument = new DelegateCommand(OnGenerateDocumentButton);
             _AddDocument = new DelegateCommand(OnAddDocumentButton);
-            _AddBrowseDocument = new DelegateCommand(OnBrowseButton);
+            _AddBrowseDocument = new DelegateCommand(OnBrowseFileButton);
+            _AddBrowseFolder = new DelegateCommand(OnBrowseFolderButton);
             _AddPages = new DelegateCommand(OnAddPagesButton);
-            _CancelGeneration = new DelegateCommand(OnCancelGenerationButton);
             _ResetDocumentList = new DelegateCommand(OnResetFormButton);
 
-        }
-
-        private void DocumentList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion
@@ -111,16 +104,6 @@ namespace pdfjoiner.DesktopClient
         }
 
 
-        private string _SelectedDocumentPath = string.Empty;
-        /// <summary>
-        /// The path selected by the explorer control.
-        /// </summary>
-        public string SelectedDocumentPath
-        {
-            get => _SelectedDocumentPath;
-            set => SetProperty(ref _SelectedDocumentPath, value);
-        }
-
 
         private Brush _StatusBrush = (Brush)new BrushConverter().ConvertFromString("Green");
         public Brush StatusBrush
@@ -142,13 +125,6 @@ namespace pdfjoiner.DesktopClient
             get => _DocumentSegments;
             set => SetProperty(ref _DocumentSegments, value);
         }
-        private ObservableCollection<DocumentModel> _DocumentList;
-
-        public ObservableCollection<DocumentModel> DocumentList
-        {
-            get => _DocumentList;
-            set => SetProperty(ref _DocumentList, value);
-        }
 
         private ObservableCollection<DirectoryItemViewModel> _Items;
         public ObservableCollection<DirectoryItemViewModel> Items
@@ -157,20 +133,28 @@ namespace pdfjoiner.DesktopClient
             set => SetProperty(ref _Items, value);
         }
 
-        private DirectoryItemViewModel? _SelectedDocument;
-        public DirectoryItemViewModel? SelectedDocument
+        private DirectoryItemViewModel? _SelectedItem;
+        public DirectoryItemViewModel? SelectedItem
         {
-            get => _SelectedDocument;
+            get => _SelectedItem;
 
             set
             {
+                if (SelectedItem == value)
+                    return;
+                //unselect the previous
+                if (_SelectedItem != null)
+                    _SelectedItem.IsSelected = false;
                 //set the selected document before trying to use it
-                SetProperty(ref _SelectedDocument, value);
+                SetProperty(ref _SelectedItem, value);
+                //Set the new one as selected as selected
+                if (_SelectedItem != null)
+                    _SelectedItem.IsSelected = true;
                 //Clear the index text boxes
                 StartPageText = "";
                 EndPageText = "";
                 //if the selected document is empty, clear out document panel
-                if (_SelectedDocument == null)
+                if (_SelectedItem == null || _SelectedItem.Document == null)
                 {
                     FilenameText = "";
                     PathText = "";
@@ -178,9 +162,9 @@ namespace pdfjoiner.DesktopClient
                     return;
                 }
                 //update the text boxes with the document information.
-                FilenameText = _SelectedDocument.Name;
-                PathText = _SelectedDocument.FullPath;
-                NumPagesText = _SelectedDocument.Document.NumPages.ToString();
+                FilenameText = _SelectedItem.Name;
+                PathText = _SelectedItem.FullPath;
+                NumPagesText = _SelectedItem.Document.NumPages.ToString();
             }
         }
 
@@ -195,16 +179,19 @@ namespace pdfjoiner.DesktopClient
             StatusText = newStatus;
             if (colour == "Green")
             {
-                    StatusBrush = (Brush)new BrushConverter().ConvertFromString("Green");
-            } else if (colour == "Red")
+                StatusBrush = (Brush)new BrushConverter().ConvertFromString("Green");
+            }
+            else if (colour == "Red")
             {
-                    StatusBrush = (Brush)new BrushConverter().ConvertFromString("Red");
-            } else if (colour == "Orange")
+                StatusBrush = (Brush)new BrushConverter().ConvertFromString("Red");
+            }
+            else if (colour == "Orange")
             {
-                    StatusBrush = (Brush)new BrushConverter().ConvertFromString("Orange");
-            } else
+                StatusBrush = (Brush)new BrushConverter().ConvertFromString("Orange");
+            }
+            else
             {
-                    StatusBrush = (Brush)new BrushConverter().ConvertFromString("Grey");
+                StatusBrush = (Brush)new BrushConverter().ConvertFromString("Grey");
             }
         }
 
@@ -216,7 +203,7 @@ namespace pdfjoiner.DesktopClient
         private void OnGenerateDocumentButton(object commandParameter)
         {
             if (DocumentSegments.Count == 0)
-            { 
+            {
                 SetStatusTextboxContent("No documents segments selected.", "Yellow");
                 return;
             }
@@ -241,30 +228,121 @@ namespace pdfjoiner.DesktopClient
         /// </summary>
         public ICommand AddBrowseDocument => _AddBrowseDocument;
         private readonly DelegateCommand _AddBrowseDocument;
-        private void OnBrowseButton(object commandParameter)
+        private void OnBrowseFileButton(object commandParameter)
         {
-            FolderBrowserDialog folderBrowser = new FolderBrowserDialog();
-
-            OpenFileDialog FileDialog1 = new OpenFileDialog
+            OpenFileDialog folderBrowser = new OpenFileDialog
             {
-                Filter = "PDF Files|*.pdf",
-                Title = "Select a PDF File or a folder",
-                Multiselect = true,
-                
+                CheckPathExists = false,
+                CheckFileExists = false,
+                ValidateNames = false,
+                Title = "Select a PDF file or folder.",
+                FileName = "\r",
+                Multiselect = true
             };
-            FileDialog1.ShowDialog();
-            if (FileDialog1.FileName == "")
+
+            folderBrowser.ShowDialog();
+            if (folderBrowser.FileNames.Length == 0)
             {
                 SetStatusTextboxContent("No file selected.", "Orange");
                 return;
             }
-            var a = FileDialog1.
-            var newDirectoryItem = new DirectoryItemViewModel()
-            var Document = new DocumentModel(FileDialog1.FileName);
-            DocumentList.Add(Document);
-            SelectedDocument = Document;
+            foreach (var name in folderBrowser.FileNames)
+            {
+                var newItem = CreateDirectoryItemViewModelFromPath(name);
+                if (newItem == null)
+                    return;
+                AddDirectoryItem(newItem);
+                SelectedItem = newItem;
+            }
             SetStatusTextboxContent("Document sucessfully added.", "Green");
         }
+
+        /// <summary>
+        /// Event to add a document to the list
+        /// </summary>
+        public ICommand AddBrowseFolder => _AddBrowseFolder;
+        private readonly DelegateCommand _AddBrowseFolder;
+        private void OnBrowseFolderButton(object commandParameter)
+        {
+
+            System.Windows.Forms.FolderBrowserDialog folderBrowser = new System.Windows.Forms.FolderBrowserDialog
+            {
+                Description = "Select a folder to add."
+            };
+
+            folderBrowser.ShowDialog();
+            if (string.IsNullOrWhiteSpace(folderBrowser.SelectedPath))
+            {
+                SetStatusTextboxContent("No file selected.", "Orange");
+                return;
+            }
+            var newItem = CreateDirectoryItemViewModelFromPath(folderBrowser.SelectedPath);
+            if (newItem == null)
+            {
+                SetStatusTextboxContent("Error adding the folder.", "Red");
+                return;
+            }
+            AddDirectoryItem(newItem);
+            SelectedItem = newItem;
+            SetStatusTextboxContent("Folder sucessfully added.", "Green");
+        }
+
+        private DirectoryItemViewModel? CreateDirectoryItemViewModelFromPath(string path)
+        {
+            try
+            {
+                FileAttributes fileAttributes = File.GetAttributes(path);
+                return new DirectoryItemViewModel(path,
+                    fileAttributes.HasFlag(FileAttributes.Directory) ? DirectoryItemType.Folder : DirectoryItemType.File,
+                    DirectoryHelpers.GetFileFolderName(path));
+            }
+            catch (ArgumentException)
+            {
+                MessageBox.Show("File or Folder name is invalid.", "Error");
+                return null;
+            }
+            catch (PathTooLongException)
+            {
+                MessageBox.Show("File or Folder path is too long.", "Error");
+                return null;
+            }
+            catch (NotSupportedException)
+            {
+                MessageBox.Show("File or Folder name is invalid.", "Error");
+                return null;
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("File or Folder not found.", "Error");
+                return null;
+            }
+            catch (DirectoryNotFoundException)
+            {
+                MessageBox.Show("File or Folder not found.", "Error");
+                return null;
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("File in use by another process.", "Error");
+                return null;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Not authorised to access file or folder.", "Error");
+                return null;
+            }
+        }
+
+        private void AddDirectoryItem(DirectoryItemViewModel newDirectoryItem)
+        {
+            //Don't add if it is null
+            if (newDirectoryItem == null)
+                return;
+
+            Items.Add(newDirectoryItem);
+            SelectedItem = newDirectoryItem;
+        }
+
         /// <summary>
         /// Event to add a document to the list
         /// </summary>
@@ -272,32 +350,32 @@ namespace pdfjoiner.DesktopClient
         private readonly DelegateCommand _AddDocument;
         private void OnAddDocumentButton(object commandParameter)
         {
-            DocumentModel Document = null;
-            try
-            {
-                Document = new DocumentModel(SelectedDocumentPath);
-            }
-            catch
-            {
-                SetStatusTextboxContent("Failed to open the selected document. Is it a PDF?.", "Red");
-                return;
-            }
-            DocumentList.Add(Document);
-            SelectedDocument = Document;
-            SetStatusTextboxContent("Document sucessfully added.", "Green");
+            throw new NotImplementedException();
         }
 
         public void AddMultipleDocuments(string[] files)
         {
             foreach (var file in files)
             {
-                var Document = new DocumentModel(file);
-                DocumentList.Add(Document);
-                SelectedDocument = Document;
+                var newItem = CreateDirectoryItemViewModelFromPath(file);
+                if (newItem != null)
+                {
+                    AddDirectoryItem(newItem);
+                    SelectedItem = newItem;
+                }
             }
             SetStatusTextboxContent("Documents sucessfully added.", "Green");
         }
 
+        /// <summary>
+        /// Event Handler for the treeview selectionchanged event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void SelectedItemChangedEventHandler(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            SelectedItem = ((DirectoryItemViewModel)e.NewValue);
+        }
         /// <summary>
         /// Event to add a group of pages to the generation string.
         /// </summary>
@@ -310,37 +388,22 @@ namespace pdfjoiner.DesktopClient
             try
             {
                 //index = page number - 1
-                startIndex = int.Parse(StartPageText) - 1; 
+                startIndex = int.Parse(StartPageText) - 1;
                 endIndex = int.Parse(EndPageText) - 1;
-            } 
+            }
             catch
             {
                 SetStatusTextboxContent("invalid page numbers provided", "Red");
                 return;
             }
-            var newSegment = new DocumentSegmentModel(SelectedDocument, startIndex, endIndex);
+            //Make sure there is a document selected
+            if (SelectedItem == null || SelectedItem.Document == null)
+                return;
+            var newSegment = new DocumentSegmentModel(SelectedItem.Document, startIndex, endIndex);
             DocumentSegments.Add(newSegment);
 
             SetStatusTextboxContent("Document segment added.", "Green");
 
-        }
-
-        /// <summary>
-        /// Event to cancel the currently active generation
-        /// </summary>
-        public ICommand CancelGeneration => _CancelGeneration;
-        private readonly DelegateCommand _CancelGeneration;
-        private void OnCancelGenerationButton(object commandParameter)
-        {
-            //Tell the document generator to stop
-            SetStatusTextboxContent("Not implemented yet.", "Red");
-            //set status text based on whether the termination was successful
-            //if (success)
-            //{
-            //    SetStatusTextboxContent("Document Generation stopped.", "Green");
-            //    return;
-            //}
-            //SetStatusTextboxContent("Document Generation failed to stop.", DocumentGenerator.StatusColourState.Red);
         }
 
         /// <summary>
@@ -351,10 +414,9 @@ namespace pdfjoiner.DesktopClient
         private void OnResetFormButton(object commandParameter)
         {
             //Clear the document lists
-            DocumentList.Clear();
             DocumentSegments.Clear();
             //Reset the selected document panel
-            SelectedDocument = null;
+            SelectedItem = null;
         }
 
         #endregion

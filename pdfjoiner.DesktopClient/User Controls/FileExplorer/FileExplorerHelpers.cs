@@ -42,7 +42,7 @@ namespace pdfjoiner.DesktopClient.UserControls
                 if (dirs.Length > 0)
                     items.AddRange(dirs.Select(dir => new FileExplorerItem { FullPath = dir, Type = FileExplorerItemType.Folder }));
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
                 // Ignore the excepts that can be thrown as we will just not add anything to the list for folders
             }
@@ -53,7 +53,7 @@ namespace pdfjoiner.DesktopClient.UserControls
                 if (files.Length > 0)
                     items.AddRange(files.Select(file => new FileExplorerItem { FullPath = file, Type = FileExplorerItemType.File }));
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
                 // Ignore the excepts that can be thrown as we will just not add anything to the list for files
             }

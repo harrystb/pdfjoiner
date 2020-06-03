@@ -1,16 +1,16 @@
-﻿using System;
+﻿using pdfjoiner.Core.Models;
+using System;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
-namespace pdfjoiner.DesktopClient.UserControls
+namespace pdfjoiner.DesktopClient
 {
-    [ValueConversion(typeof(FileExplorerItemType), typeof(BitmapImage))]
+    [ValueConversion(typeof(DirectoryItemType), typeof(BitmapImage))]
     public class HeaderToImageConverter : IValueConverter
     {
         private static readonly HeaderToImageConverter instance = new HeaderToImageConverter();
-
-        public static HeaderToImageConverter Instance { get => instance; } 
+        public static HeaderToImageConverter Instance { get => instance; }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

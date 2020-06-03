@@ -1,5 +1,4 @@
 ﻿using pdfjoiner.DesktopClient.UserControls.ViewModels;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -14,7 +13,6 @@ namespace pdfjoiner.DesktopClient.UserControls
         {
             InitializeComponent();
             LayoutRoot.DataContext = new FileExplorerStructureViewModel();
-            AddPathCommand = ;
         }
 
         /// <summary>
