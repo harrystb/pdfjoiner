@@ -169,6 +169,12 @@ namespace pdfjoiner.DesktopClient
         }
 
 
+        private bool _IsDocumentSelected = false;
+        public bool IsDocumentSelected
+        {
+            get => _IsDocumentSelected;
+            set => SetProperty(ref _IsDocumentSelected, value);
+        }
 
         #endregion
 
@@ -375,6 +381,7 @@ namespace pdfjoiner.DesktopClient
         public void SelectedItemChangedEventHandler(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             SelectedItem = ((DirectoryItemViewModel)e.NewValue);
+            IsDocumentSelected = SelectedItem.Document != null;
         }
         /// <summary>
         /// Event to add a group of pages to the generation string.
