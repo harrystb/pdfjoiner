@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace pdfjoiner.DesktopClient
@@ -32,12 +33,29 @@ namespace pdfjoiner.DesktopClient
             }
         }
         private static readonly Regex _NonnumericRegex = new Regex("[^0-9]+"); //regex that matches disallowed text
-        private void NumericOnly(object sender, TextCompositionEventArgs e)
+        private void LessThanMaxPage(object sender, TextCompositionEventArgs e)
         {
+            //by default ignore the character
+            e.Handled = true;
             if (_NonnumericRegex.IsMatch(e.Text))
-                e.Handled = true;
+                return;
 
+            int pagenumber;
+            int max = ((MainViewModel)DataContext).GetMaxSelectedPageNumber();
+            if (max == -1)
+            {
+                ((TextBox)sender).Text = "";
+                return;
+            }
+            if (int.TryParse(((TextBox)sender).Text + e.Text,out pagenumber) && pagenumber > max)
+            {
+                ((TextBox)sender).Text = max.ToString();
+                return;
+            }
+            //Only allow it to be added if it has passed all the above checks
+            e.Handled = false;
         }
+
         public void SelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             ((MainViewModel)DataContext).SelectedItemChangedEventHandler(sender, e);

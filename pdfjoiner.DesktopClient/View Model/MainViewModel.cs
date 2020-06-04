@@ -29,11 +29,11 @@ namespace pdfjoiner.DesktopClient
 
             //register all of the button functions as delegate commands
             _GenerateDocument = new DelegateCommand(OnGenerateDocumentButton);
-            _AddDocument = new DelegateCommand(OnAddDocumentButton);
             _AddBrowseDocument = new DelegateCommand(OnBrowseFileButton);
             _AddBrowseFolder = new DelegateCommand(OnBrowseFolderButton);
             _AddPages = new DelegateCommand(OnAddPagesButton);
-            _ResetDocumentList = new DelegateCommand(OnResetFormButton);
+            _ClearDocumentList = new DelegateCommand(OnClearDocumentListButton);
+            _ClearSegmentList = new DelegateCommand(OnClearSegmentListButton);
 
         }
 
@@ -153,18 +153,11 @@ namespace pdfjoiner.DesktopClient
                 //Clear the index text boxes
                 StartPageText = "";
                 EndPageText = "";
-                //if the selected document is empty, clear out document panel
-                if (_SelectedItem == null || _SelectedItem.Document == null)
-                {
-                    FilenameText = "";
-                    PathText = "";
-                    NumPagesText = "";
-                    return;
-                }
                 //update the text boxes with the document information.
-                FilenameText = _SelectedItem.Name;
-                PathText = _SelectedItem.FullPath;
-                NumPagesText = _SelectedItem.Document.NumPages.ToString();
+                FilenameText = _SelectedItem?.Name ?? "";
+                PathText = _SelectedItem?.FullPath ?? "";
+                NumPagesText = _SelectedItem?.Document?.NumPages.ToString() ?? "";
+                IsDocumentSelected = _SelectedItem?.Document != null;
             }
         }
 
@@ -175,7 +168,13 @@ namespace pdfjoiner.DesktopClient
             get => _IsDocumentSelected;
             set => SetProperty(ref _IsDocumentSelected, value);
         }
-
+ 
+        private bool _HasDocumentSegments = false;
+        public bool HasDocumentSegments
+        {
+            get => _HasDocumentSegments;
+            set => SetProperty(ref _HasDocumentSegments, value);
+        }
         #endregion
 
         #region Methods
@@ -349,16 +348,6 @@ namespace pdfjoiner.DesktopClient
             SelectedItem = newDirectoryItem;
         }
 
-        /// <summary>
-        /// Event to add a document to the list
-        /// </summary>
-        public ICommand AddDocument => _AddDocument;
-        private readonly DelegateCommand _AddDocument;
-        private void OnAddDocumentButton(object commandParameter)
-        {
-            throw new NotImplementedException();
-        }
-
         public void AddMultipleDocuments(string[] files)
         {
             foreach (var file in files)
@@ -381,7 +370,6 @@ namespace pdfjoiner.DesktopClient
         public void SelectedItemChangedEventHandler(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             SelectedItem = ((DirectoryItemViewModel)e.NewValue);
-            IsDocumentSelected = SelectedItem.Document != null;
         }
         /// <summary>
         /// Event to add a group of pages to the generation string.
@@ -390,45 +378,78 @@ namespace pdfjoiner.DesktopClient
         private readonly DelegateCommand _AddPages;
         private void OnAddPagesButton(object commandParameter)
         {
-            int startIndex;
-            int endIndex;
-            try
-            {
-                //index = page number - 1
-                startIndex = int.Parse(StartPageText) - 1;
-                endIndex = int.Parse(EndPageText) - 1;
-            }
-            catch
-            {
-                SetStatusTextboxContent("invalid page numbers provided", "Red");
-                return;
-            }
             //Make sure there is a document selected
             if (SelectedItem == null || SelectedItem.Document == null)
                 return;
+            int startIndex;
+            int endIndex;
+            // Add whole document if page strings are left empty
+            if (StartPageText == string.Empty && EndPageText == string.Empty)
+            {
+                startIndex = 0;
+                endIndex = SelectedItem.Document.LastPageIndex;
+            } else
+            {
+                //index = page number - 1
+                if (!int.TryParse(StartPageText, out startIndex))
+                {
+                    MessageBox.Show("Please provide a valid start page.");
+                    return;
+                }
+                if (!int.TryParse(EndPageText, out endIndex))
+                {
+                    MessageBox.Show("Please provide a valid end page.");
+                    return;
+                }
+                //convert page numbers into page index
+                startIndex -= 1;
+                endIndex -= 1;
+            }
             var newSegment = new DocumentSegmentModel(SelectedItem.Document, startIndex, endIndex);
             DocumentSegments.Add(newSegment);
-
-            SetStatusTextboxContent("Document segment added.", "Green");
-
+            HasDocumentSegments = DocumentSegments?.Count > 0;
         }
 
         /// <summary>
-        /// Event to reset all fieds.
+        /// Event to clear the document list.
         /// </summary>
-        public ICommand ResetDocumentList => _ResetDocumentList;
-        private readonly DelegateCommand _ResetDocumentList;
-        private void OnResetFormButton(object commandParameter)
+        public ICommand ClearDocumentList => _ClearDocumentList;
+        private readonly DelegateCommand _ClearDocumentList;
+        private void OnClearDocumentListButton(object commandParameter)
         {
-            //Clear the document lists
-            DocumentSegments.Clear();
-            //Reset the selected document panel
+            //Clear the document list
+            Items.Clear();
             SelectedItem = null;
+            //Clear the segment lists
+            DocumentSegments.Clear();
+            HasDocumentSegments = DocumentSegments?.Count > 0;
+        }
+
+        /// <summary>
+        /// Event to clear the segment list.
+        /// </summary>
+        public ICommand ClearSegmentList => _ClearSegmentList;
+        private readonly DelegateCommand _ClearSegmentList;
+        private void OnClearSegmentListButton(object commandParameter)
+        {
+            //Clear the segment lists
+            DocumentSegments.Clear();
+            HasDocumentSegments = DocumentSegments?.Count > 0;
         }
 
         #endregion
 
         #region Helpers
+
+        /// <summary>
+        /// Gets the last indext of the selected document or -1 if there is no valid document selected.
+        /// </summary>
+        /// <returns>Last index or -1</returns>
+        public int GetMaxSelectedPageNumber()
+        {
+            //Return the page number of the last item (10 pages -> page 10 is that last one at index 9)
+            return SelectedItem?.Document?.NumPages ?? -1;
+        }
 
         #endregion
 
