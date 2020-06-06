@@ -1,5 +1,4 @@
 ﻿#nullable enable
-using Microsoft.Win32;
 using pdfjoiner.Core.Generator;
 using pdfjoiner.Core.Models;
 using System;
@@ -7,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -242,7 +242,10 @@ namespace pdfjoiner.DesktopClient
                 Filter = "PDF Files | *.pdf",
                 Title = "Save the PDF File"
             };
-            saveFileDialog.ShowDialog();
+            //if cancelled then don't continue
+            if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                return;
+
             if (saveFileDialog.FileName != "")
             {
                 generator.SaveGeneratedDocument(saveFileDialog.FileName);
@@ -267,7 +270,10 @@ namespace pdfjoiner.DesktopClient
                 Multiselect = true
             };
 
-            folderBrowser.ShowDialog();
+            //Do nothing if the dialog box is cancelled
+            if (folderBrowser.ShowDialog() != DialogResult.OK)
+                return;
+
             if (folderBrowser.FileNames.Length == 0)
             {
                 SetStatusTextboxContent("No file selected.", "Orange");
@@ -292,12 +298,15 @@ namespace pdfjoiner.DesktopClient
         private void OnBrowseFolderButton(object commandParameter)
         {
 
-            System.Windows.Forms.FolderBrowserDialog folderBrowser = new System.Windows.Forms.FolderBrowserDialog
+            FolderBrowserDialog folderBrowser = new FolderBrowserDialog
             {
                 Description = "Select a folder to add."
             };
 
-            folderBrowser.ShowDialog();
+            //If the dialog was cancelled then cancel
+            if (folderBrowser.ShowDialog() != DialogResult.OK)
+                return;
+
             if (string.IsNullOrWhiteSpace(folderBrowser.SelectedPath))
             {
                 SetStatusTextboxContent("No file selected.", "Orange");
@@ -311,7 +320,6 @@ namespace pdfjoiner.DesktopClient
             }
             AddDirectoryItem(newItem);
             SelectedItem = newItem;
-            SetStatusTextboxContent("Folder sucessfully added.", "Green");
         }
 
         private DirectoryItemViewModel? CreateDirectoryItemViewModelFromPath(string path)
@@ -325,37 +333,37 @@ namespace pdfjoiner.DesktopClient
             }
             catch (ArgumentException)
             {
-                MessageBox.Show("File or Folder name is invalid.", "Error");
+                ShowMessage("File or Folder name is invalid.", "Error");
                 return null;
             }
             catch (PathTooLongException)
             {
-                MessageBox.Show("File or Folder path is too long.", "Error");
+                ShowMessage("File or Folder path is too long.", "Error");
                 return null;
             }
             catch (NotSupportedException)
             {
-                MessageBox.Show("File or Folder name is invalid.", "Error");
+                ShowMessage("File or Folder name is invalid.", "Error");
                 return null;
             }
             catch (FileNotFoundException)
             {
-                MessageBox.Show("File or Folder not found.", "Error");
+                ShowMessage("File or Folder not found.", "Error");
                 return null;
             }
             catch (DirectoryNotFoundException)
             {
-                MessageBox.Show("File or Folder not found.", "Error");
+                ShowMessage("File or Folder not found.", "Error");
                 return null;
             }
             catch (IOException)
             {
-                MessageBox.Show("File in use by another process.", "Error");
+                ShowMessage("File in use by another process.", "Error");
                 return null;
             }
             catch (UnauthorizedAccessException)
             {
-                MessageBox.Show("Not authorised to access file or folder.", "Error");
+                ShowMessage("Not authorised to access file or folder.", "Error");
                 return null;
             }
         }
@@ -413,7 +421,7 @@ namespace pdfjoiner.DesktopClient
             {
                 if (!int.TryParse(StartPageText, out startIndex))
                 {
-                    MessageBox.Show("Please provide a valid start page.");
+                    ShowMessage("Please provide a valid start page.", "Error");
                     return;
                 }
                 //convert page numbers into page index
@@ -427,7 +435,7 @@ namespace pdfjoiner.DesktopClient
             {
                 if (!int.TryParse(EndPageText, out endIndex))
                 {
-                    MessageBox.Show("Please provide a valid end page.");
+                    ShowMessage("Please provide a valid end page.", "Error");
                     return;
                 }
                 //convert page numbers into page index
@@ -477,6 +485,11 @@ namespace pdfjoiner.DesktopClient
         {
             //Return the page number of the last item (10 pages -> page 10 is that last one at index 9)
             return SelectedItem?.Document?.NumPages ?? -1;
+        }
+
+        private void ShowMessage(string message, string caption)
+        {
+            System.Windows.MessageBox.Show(message, caption);
         }
 
         #endregion

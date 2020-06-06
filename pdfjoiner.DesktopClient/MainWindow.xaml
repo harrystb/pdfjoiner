@@ -104,9 +104,20 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <Label HorizontalAlignment="Left" VerticalAlignment="Center">From</Label>
-                            <TextBox x:Name="StartIndexTextBox" Text="{Binding StartPageText}" Tag="{Binding StartHintText}" PreviewTextInput="LessThanMaxPage" Grid.Column="1" />
+                            <TextBox x:Name="StartIndexTextBox"
+                                     Text="{Binding StartPageText}"
+                                     Tag="{Binding StartHintText}"
+                                     IsEnabled="{Binding IsDocumentSelected}"
+                                     PreviewTextInput="LessThanMaxPage" 
+                                     Grid.Column="1" />
                             <Label HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="1">To</Label>
-                            <TextBox x:Name="EndIndexTexBox" Text="{Binding EndPageText}" Tag="{Binding EndHintText}" PreviewTextInput="LessThanMaxPage" Grid.Row="1" Grid.Column="1" />
+                            <TextBox x:Name="EndIndexTexBox" 
+                                     Text="{Binding EndPageText}" 
+                                     Tag="{Binding EndHintText}" 
+                                     IsEnabled="{Binding IsDocumentSelected}"
+                                     PreviewTextInput="LessThanMaxPage" 
+                                     Grid.Row="1" 
+                                     Grid.Column="1" />
                         </Grid>
                     </StackPanel>
                 </Grid>
