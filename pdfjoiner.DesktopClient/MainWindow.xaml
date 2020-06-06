@@ -87,16 +87,27 @@
                     <StackPanel Orientation="Vertical" Grid.Row="1">
                         <Label FontWeight="Medium">Document Information</Label>
                         <!--Display document name-->
-                        <Label>Title</Label>
+                        <Label FontStyle="Italic">Title</Label>
                         <TextBox x:Name="TitleTextBox" Text="{Binding Path=FilenameText}" IsEnabled="False" />
                         <!--Display document name-->
-                        <Label>Path</Label>
+                        <Label FontStyle="Italic">Path</Label>
                         <TextBox x:Name="PathTextBox" Text="{Binding Path=PathText}" IsEnabled="False"></TextBox>
                         <!--Text extry box for the pages that should be added to the combination list-->
-                        <Label>Pages to add:</Label>
-                        <TextBox x:Name="StartIndexTextBox" Text="{Binding Path=StartPageText}" PreviewTextInput="LessThanMaxPage" />
-                        <Label HorizontalAlignment="Center" VerticalAlignment="Center">To</Label>
-                        <TextBox x:Name="EndIndexTexBox" Text="{Binding Path=EndPageText}" PreviewTextInput="LessThanMaxPage" />
+                        <Label FontStyle="Italic">Pages to add</Label>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Label HorizontalAlignment="Left" VerticalAlignment="Center">From</Label>
+                            <TextBox x:Name="StartIndexTextBox" Text="{Binding StartPageText}" Tag="{Binding StartHintText}" PreviewTextInput="LessThanMaxPage" Grid.Column="1" />
+                            <Label HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="1">To</Label>
+                            <TextBox x:Name="EndIndexTexBox" Text="{Binding EndPageText}" Tag="{Binding EndHintText}" PreviewTextInput="LessThanMaxPage" Grid.Row="1" Grid.Column="1" />
+                        </Grid>
                     </StackPanel>
                 </Grid>
             </Border>

@@ -73,6 +73,26 @@ namespace pdfjoiner.DesktopClient
         }
 
 
+        private string _StartHintText = string.Empty;
+        /// <summary>
+        /// The hint text that is shown in the from page number text box
+        /// </summary>
+        public string StartHintText
+        {
+            get => _StartHintText;
+            set => SetProperty(ref _StartHintText, value);
+        }
+
+        /// <summary>
+        /// The hint text that is shown in the to page number text box
+        /// </summary>
+        private string _EndHintText = string.Empty;
+        public string EndHintText
+        {
+            get => _EndHintText;
+            set => SetProperty(ref _EndHintText, value);
+        }
+
         private string _StartPageText = string.Empty;
         /// <summary>
         /// The bound property for the start index of the document segment to be added.
@@ -158,6 +178,8 @@ namespace pdfjoiner.DesktopClient
                 PathText = _SelectedItem?.FullPath ?? "";
                 NumPagesText = _SelectedItem?.Document?.NumPages.ToString() ?? "";
                 IsDocumentSelected = _SelectedItem?.Document != null;
+                StartHintText = _SelectedItem?.Document != null ? "1" : "";
+                EndHintText = _SelectedItem?.Document?.NumPages.ToString() ?? "";
             }
         }
 
@@ -384,25 +406,31 @@ namespace pdfjoiner.DesktopClient
             int startIndex;
             int endIndex;
             // Add whole document if page strings are left empty
-            if (StartPageText == string.Empty && EndPageText == string.Empty)
+            if (StartPageText == string.Empty)
             {
                 startIndex = 0;
-                endIndex = SelectedItem.Document.LastPageIndex;
             } else
             {
-                //index = page number - 1
                 if (!int.TryParse(StartPageText, out startIndex))
                 {
                     MessageBox.Show("Please provide a valid start page.");
                     return;
                 }
+                //convert page numbers into page index
+                startIndex -= 1;
+            }
+            if (EndPageText == string.Empty)
+            {
+                endIndex = SelectedItem.Document.LastPageIndex;
+            }
+            else
+            {
                 if (!int.TryParse(EndPageText, out endIndex))
                 {
                     MessageBox.Show("Please provide a valid end page.");
                     return;
                 }
                 //convert page numbers into page index
-                startIndex -= 1;
                 endIndex -= 1;
             }
             var newSegment = new DocumentSegmentModel(SelectedItem.Document, startIndex, endIndex);

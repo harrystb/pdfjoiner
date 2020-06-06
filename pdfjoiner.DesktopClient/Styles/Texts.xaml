@@ -37,7 +37,7 @@
                                    Padding="{TemplateBinding Padding}"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
-                                   Foreground="{StaticResource ForegroundVeryDarkBrush}"
+                                   Foreground="{StaticResource ForegroundLightBrush}"
                                    >
                             <TextBlock.Style>
                                 <Style TargetType="{x:Type TextBlock}">
