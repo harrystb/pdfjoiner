@@ -34,7 +34,7 @@ namespace pdfjoiner.DesktopClient
             _AddPages = new DelegateCommand(OnAddPagesButton);
             _ClearDocumentList = new DelegateCommand(OnClearDocumentListButton);
             _ClearSegmentList = new DelegateCommand(OnClearSegmentListButton);
-
+            _DeleteSegment = new DelegateCommand(OnDeleteSegmentButton);
         }
 
         #endregion
@@ -471,6 +471,19 @@ namespace pdfjoiner.DesktopClient
             //Clear the segment lists
             DocumentSegments.Clear();
             HasDocumentSegments = DocumentSegments?.Count > 0;
+        }
+
+        /// <summary>
+        /// Event to delete a document segment
+        /// </summary>
+        public ICommand DeleteSegment => _DeleteSegment;
+        private readonly DelegateCommand _DeleteSegment;
+        private void OnDeleteSegmentButton(object segment)
+        {
+            //Delete the segment
+            if (segment is DocumentSegmentModel segmentModel)
+                DocumentSegments.Remove(segmentModel);
+
         }
 
         #endregion

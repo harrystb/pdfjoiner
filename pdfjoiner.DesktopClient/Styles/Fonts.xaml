@@ -6,8 +6,8 @@
     <FontFamily x:Key="RobotoBold">pack://application;,,,/Fonts/Roboto/#Roboto Bold</FontFamily>
     <FontFamily x:Key="RobotoRegular">pack://application;,,,/Fonts/Roboto/#Roboto Regular</FontFamily>
     <FontFamily x:Key="RobotoThin">pack://application;,,,/Fonts/Roboto/#Roboto Thin</FontFamily>
-    <FontFamily x:Key="FontAwesome5">pack://application;,,,/Fonts/Roboto/#Font Awesome 5 Free Regular</FontFamily>
-    <FontFamily x:Key="FontAwesome">pack://application;,,,/Fonts/Roboto/#FontAwesome</FontFamily>
+    <FontFamily x:Key="FontAwesome5">pack://application;,,,/Fonts/FontAwesome/#Font Awesome 5 Free Regular</FontFamily>
+    <FontFamily x:Key="FontAwesome">pack://application;,,,/Fonts/FontAwesome/#FontAwesome</FontFamily>
     
     <system:Double x:Key="FontSizeSmaller">10</system:Double>
     <system:Double x:Key="FontSizeSmall">12</system:Double>

@@ -1,6 +1,7 @@
 ﻿using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.IO;
 using System.IO;
+using System.Reflection.Metadata;
 
 namespace pdfjoiner.Core.Models
 {
@@ -13,6 +14,13 @@ namespace pdfjoiner.Core.Models
         /// <param name="path">The full or relative path of the document</param>
         public DocumentModel(string path)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                FullPath = string.Empty;
+                Name = string.Empty;
+                Pdf = null;
+                return;
+            }
             FullPath = Path.GetFullPath(path);
             Name = Path.GetFileNameWithoutExtension(path);
             Pdf = PdfReader.Open(FullPath, PdfDocumentOpenMode.Import);
