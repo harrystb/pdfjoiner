@@ -22,7 +22,7 @@ namespace pdfjoiner.Core.Models
                 return;
             }
             FullPath = Path.GetFullPath(path);
-            Name = Path.GetFileNameWithoutExtension(path);
+            Name = Path.GetFileName(path);
             Pdf = PdfReader.Open(FullPath, PdfDocumentOpenMode.Import);
         }
         #endregion
