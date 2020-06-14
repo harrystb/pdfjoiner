@@ -7,6 +7,9 @@
         xmlns:models="clr-namespace:pdfjoiner.Core.Models;assembly=pdfjoiner.Core"
         mc:Ignorable="d"
         Title="PDFJoiner" Height="600" Width="1200" MinHeight="600" MinWidth="1080">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Window.Resources>
     <Grid Background="{StaticResource BackgroundDarkBrush}" DragDrop.Drop="DragDropEventHandler" AllowDrop="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -122,6 +125,14 @@
                                      Grid.Column="1" 
                                      Margin="10 0"/>
                         </Grid>
+                        <TextBlock Text="Error: PDF could not be imported. Either the PDF is not support or there is an error in the PDF." 
+                                 TextWrapping="Wrap"
+                                 Margin="10"
+                                 Padding="10"
+                                 Foreground="{StaticResource PdfJoinerRedBrush}"
+                                 Background="Yellow"
+                                 FontFamily="{StaticResource RobotoBold}"
+                                 Visibility="{Binding PDFIsInvalid, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
                 </Grid>
             </Border>

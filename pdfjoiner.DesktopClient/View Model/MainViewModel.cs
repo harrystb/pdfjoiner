@@ -35,6 +35,7 @@ namespace pdfjoiner.DesktopClient
             _ClearDocumentList = new DelegateCommand(OnClearDocumentListButton);
             _ClearSegmentList = new DelegateCommand(OnClearSegmentListButton);
             _DeleteSegment = new DelegateCommand(OnDeleteSegmentButton);
+            _PDFIsInvalid = false;
         }
 
         #endregion
@@ -180,9 +181,16 @@ namespace pdfjoiner.DesktopClient
                 IsDocumentSelected = _SelectedItem?.Document != null;
                 StartHintText = _SelectedItem?.Document != null ? "1" : "";
                 EndHintText = _SelectedItem?.Document?.NumPages.ToString() ?? "";
+                PDFIsInvalid = _SelectedItem?.IsAnInvalidPdf ?? false;
             }
         }
 
+        private bool _PDFIsInvalid;
+        public bool PDFIsInvalid
+        {
+            get => _PDFIsInvalid;
+            set => SetProperty(ref _PDFIsInvalid, value);
+        }
 
         private bool _IsDocumentSelected = false;
         public bool IsDocumentSelected

@@ -18,6 +18,7 @@ namespace pdfjoiner.DesktopClient
             _Document = null;
 
             HasPdfExtension = DirectoryHelpers.HasPdfFileExtension(FullPath);
+            _IsAnInvalidPdf = false;
 
             ClearChildren();
 
@@ -29,12 +30,27 @@ namespace pdfjoiner.DesktopClient
 
         private readonly bool HasPdfExtension;
 
+        private bool _IsAnInvalidPdf;
+        public bool IsAnInvalidPdf 
+        {
+            get => _IsAnInvalidPdf;
+            set => SetProperty(ref _IsAnInvalidPdf, value);
+        }
+
         private DocumentModel _Document;
         public DocumentModel Document {
             get
             {
-                if (_Document == null && HasPdfExtension)
-                    _Document = new DocumentModel(FullPath);
+                if (_Document == null && HasPdfExtension && !IsAnInvalidPdf)
+                    //Catch any issues when opening the pdf
+                    try
+                    {
+                        _Document = new DocumentModel(FullPath);
+                    } catch
+                    {
+                        IsAnInvalidPdf = true;
+                        _Document = null;
+                    }
                 return _Document;
             }
             set
