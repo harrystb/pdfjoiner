@@ -155,7 +155,19 @@
                         <Button x:Name="ClearSegmentsButton" Command="{Binding ClearSegmentList}" IsEnabled="{Binding HasDocumentSegments}" Padding="10" Margin="0" Style="{StaticResource ResourceKey=ButtonSquareCorner}">Clear</Button>
                     </Border>
                 </Grid>
-                <Label FontWeight="Medium" Grid.Row="1">Segments</Label>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label FontWeight="Medium">Segments</Label>
+                    <CheckBox Content="Open after generating?"
+                              Grid.Column="1"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Center"
+                              IsChecked="{Binding OpenAfterGenerating}"
+                              Padding="0 0 10 0"/>
+                </Grid>
                 <ListView Grid.Row="2" 
                           ItemsSource="{Binding DocumentSegments}" 
                           HorizontalContentAlignment="Stretch" 

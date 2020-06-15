@@ -3,6 +3,7 @@ using pdfjoiner.Core.Generator;
 using pdfjoiner.Core.Models;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -36,6 +37,7 @@ namespace pdfjoiner.DesktopClient
             _ClearSegmentList = new DelegateCommand(OnClearSegmentListButton);
             _DeleteSegment = new DelegateCommand(OnDeleteSegmentButton);
             _PDFIsInvalid = false;
+            _OpenAfterGenerating = false;
         }
 
         #endregion
@@ -254,11 +256,26 @@ namespace pdfjoiner.DesktopClient
             if (saveFileDialog.ShowDialog() != DialogResult.OK)
                 return;
 
-            if (saveFileDialog.FileName != "")
+            if (saveFileDialog.FileName == "")
+                return;
+
+            generator.SaveGeneratedDocument(saveFileDialog.FileName);
+            DocumentSegments.Clear();
+            if (OpenAfterGenerating)
             {
-                generator.SaveGeneratedDocument(saveFileDialog.FileName);
-                SetStatusTextboxContent("Document generated successfully.", "Green");
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = saveFileDialog.FileName,
+                    UseShellExecute = true
+                });
             }
+        }
+
+        private bool _OpenAfterGenerating;
+        public bool OpenAfterGenerating 
+        {
+            get => _OpenAfterGenerating;
+            set => SetProperty(ref _OpenAfterGenerating, value);
         }
 
         /// <summary>
