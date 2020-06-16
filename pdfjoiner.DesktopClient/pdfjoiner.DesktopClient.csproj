@@ -8,6 +8,7 @@
     <PublishReadyToRun>True</PublishReadyToRun>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <ApplicationIcon>icon.ico</ApplicationIcon>
+    <AssemblyName>pdfjoiner</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
