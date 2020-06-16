@@ -5,9 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <PublishTrimmed>True</PublishTrimmed>
     <PublishReadyToRun>True</PublishReadyToRun>
-    <PublishSingleFile>True</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
