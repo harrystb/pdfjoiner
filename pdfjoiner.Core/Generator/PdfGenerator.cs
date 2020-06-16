@@ -3,6 +3,7 @@ using PdfSharpCore.Pdf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace pdfjoiner.Core.Generator
@@ -60,7 +61,7 @@ namespace pdfjoiner.Core.Generator
             {
                 for (int i = nextSegment.StartPageIndex; i <= nextSegment.EndPageIndex; i++)
                 {
-                    GeneratedPdf.AddPage(nextSegment.Document.GetPage(i));
+                    GeneratedPdf.AddPage(nextSegment.Document.GetPage(i), AnnotationCopyingType.DeepCopy);
                 }
                 return GeneratedPdf;
             });
