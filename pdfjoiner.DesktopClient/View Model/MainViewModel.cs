@@ -261,6 +261,7 @@ namespace pdfjoiner.DesktopClient
 
             generator.SaveGeneratedDocument(saveFileDialog.FileName);
             DocumentSegments.Clear();
+            HasDocumentSegments = DocumentSegments?.Count > 0;
             if (OpenAfterGenerating)
             {
                 Process.Start(new ProcessStartInfo
