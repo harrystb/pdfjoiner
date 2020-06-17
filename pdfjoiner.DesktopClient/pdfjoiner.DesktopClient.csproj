@@ -6,6 +6,7 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <PublishReadyToRun>True</PublishReadyToRun>
+    <PublishSingleFile>True</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AssemblyName>pdfjoiner</AssemblyName>
