@@ -1,14 +1,13 @@
 # PDFJoiner
 ## Overview
-Generates latex code to join two or more PDFs together then calls the pdflatex installed on the machine to generate the new PDF.
+A tool to manipulate PDFs by adding selecting page ranges from PDFs which are then generated into a new PDF. This functionallity enables joining two PDFs, cutting pages out, multiplying pages, adding a range from one PDF into another, and many other uses.
 
 ## Installation
 Extract the executable from the release zip file. The executable is a portable version, and does not require an installation.
 
-## Required Software
-An installation of LaTeX is required to perform the joining of the PDF. There are several different implementations available, such as TexLive and MikTex.
-
 ## Usage
+/TODO: Update images bellow with new layout.../
+
 When the application is first run, the following window will be displayed.
 ![Main Window](/Resources/screenshots/start-window.png)
 
