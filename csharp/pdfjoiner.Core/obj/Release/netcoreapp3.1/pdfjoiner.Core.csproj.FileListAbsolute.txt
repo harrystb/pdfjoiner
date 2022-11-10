@@ -1,0 +1,9 @@
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Core\bin\Release\netcoreapp3.1\pdfjoiner.Core.deps.json
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Core\bin\Release\netcoreapp3.1\pdfjoiner.Core.dll
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Core\bin\Release\netcoreapp3.1\pdfjoiner.Core.pdb
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Core\obj\Release\netcoreapp3.1\pdfjoiner.Core.AssemblyInfoInputs.cache
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Core\obj\Release\netcoreapp3.1\pdfjoiner.Core.AssemblyInfo.cs
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Core\obj\Release\netcoreapp3.1\pdfjoiner.Core.dll
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Core\obj\Release\netcoreapp3.1\pdfjoiner.Core.pdb
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Core\obj\Release\netcoreapp3.1\pdfjoiner.Core.csprojAssemblyReference.cache
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.Core\obj\Release\netcoreapp3.1\pdfjoiner.Core.csproj.CoreCompileInputs.cache

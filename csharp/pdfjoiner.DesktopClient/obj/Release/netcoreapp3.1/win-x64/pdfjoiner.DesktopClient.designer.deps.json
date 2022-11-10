@@ -1,0 +1,41 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.1",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "PdfSharpCore/1.1.29": {
+        "runtime": {
+          "lib/netstandard2.0/PdfSharpCore.dll": {
+            "assemblyVersion": "1.1.29.0",
+            "fileVersion": "1.1.29.0"
+          },
+          "lib/netstandard2.0/SixLabors.Fonts.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          },
+          "lib/netstandard2.0/SixLabors.ImageSharp.dll": {
+            "assemblyVersion": "1.1.29.0",
+            "fileVersion": "1.1.29.0"
+          }
+        },
+        "resources": {
+          "lib/netstandard2.0/de/PdfSharpCore.resources.dll": {
+            "locale": "de"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "PdfSharpCore/1.1.29": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-HIJlBbCUzaFsLUuCWU+p+kFugZhfu5QlAhJG/H0j/wrjGsNrxknN6DXmwI+VCXgGZheGx2GYhwo0u0YioUeQFw==",
+      "path": "pdfsharpcore/1.1.29",
+      "hashPath": "pdfsharpcore.1.1.29.nupkg.sha512"
+    }
+  }
+}

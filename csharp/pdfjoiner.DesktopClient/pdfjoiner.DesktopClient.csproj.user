@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_LastSelectedProfileId>B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.DesktopClient\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+    <ShowAllFiles>true</ShowAllFiles>
+  </PropertyGroup>
+  <ItemGroup>
+    <ApplicationDefinition Update="App.xaml">
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="User Controls\DocumentListControl\DocumentListControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="User Controls\DocumentSegmentControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="User Controls\FileExplorer\FileExplorer.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="User Controls\DocumentListControl\DocumentListControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="User Controls\DocumentSegmentControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="User Controls\FileExplorer\FileExplorer.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Styles\Buttons.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Styles\Windows.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Styles\Texts.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Styles\Fonts.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+</Project>

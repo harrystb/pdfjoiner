@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="pdfjoiner.DesktopClient.DocumentSegmentControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:pdfjoiner.DesktopClient"
+             xmlns:models="clr-namespace:pdfjoiner.Core.Models;assembly=pdfjoiner.Core"
+             mc:Ignorable="d" 
+             d:DesignHeight="40" d:DesignWidth="200"
+             d:DataContext="{x:Static models:DocumentSegmentDesignModel.Instance}" >
+    <Border x:Name="border"
+            Grid.Row="0"
+            Grid.Column="0"
+            Background="{StaticResource BackgroundVeryLightBrush}"
+            BorderThickness="0"
+            Margin="0"
+            Padding="0">
+        <Border.Triggers>
+            <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetName="close_button"
+                                         Storyboard.TargetProperty="(Button.Opacity)"
+                                         From="0"
+                                         To="1"
+                                         Duration="0:0:0.5" />
+                    </Storyboard>
+                </BeginStoryboard>
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetName="border"
+                                        Storyboard.TargetProperty="Background.Color"
+                                        To="{StaticResource BackgroundLight}"
+                                        Duration="0:0:0.5" />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>            
+            <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetName="close_button"
+                                         Storyboard.TargetProperty="(Button.Opacity)"
+                                         From="1"
+                                         To="0"
+                                         Duration="0:0:0.5" />
+                    </Storyboard>
+                </BeginStoryboard>
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetName="border"
+                                        Storyboard.TargetProperty="Background.Color"
+                                        To="{StaticResource BackgroundVeryLight}"
+                                        Duration="0:0:0.5" />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>            
+        </Border.Triggers>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" VerticalAlignment="Center" Text="{Binding DocumentName}" FontWeight="Bold"/>
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <TextBlock VerticalAlignment="Center" Text="Pages " />
+                <TextBlock Margin="10 0" VerticalAlignment="Center" Text="{Binding StartPageNumber}" />
+                <TextBlock VerticalAlignment="Center" Text="To" />
+                <TextBlock Margin="10 0" VerticalAlignment="Center" Text="{Binding EndPageNumber}" />
+            </StackPanel>
+            <!-- Delete button -->
+            <Button x:Name="close_button"
+                    Grid.RowSpan="2"
+                    Grid.Column="1"
+                    Style="{StaticResource IconButton}" 
+                    Height="18"
+                    Margin="0"
+                    Padding="0"
+                    Opacity="0"
+                    FontSize="{StaticResource FontSizeRegular}"
+                    Background="{StaticResource PdfJoinerRedBrush}"
+                    Foreground="{StaticResource BackgroundVeryLightBrush}"
+                    Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.DeleteSegment}" 
+                    CommandParameter="{Binding .}"
+                    Content="{StaticResource FontAwesomeCross}">
+            </Button>
+        </Grid>
+    </Border>
+</UserControl>

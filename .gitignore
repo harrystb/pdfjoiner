@@ -1,7 +1,8 @@
-*localrelease*
-.vs/*
-.vscode/*
+*/localrelease*
+*.vs/*
+*.vscode/*
 *~
 */obj/*
-*/bin
-releases/*
+*/bin*
+*/releases/*
+/target

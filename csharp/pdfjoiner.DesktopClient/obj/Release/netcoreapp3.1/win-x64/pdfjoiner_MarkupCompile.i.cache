@@ -1,0 +1,20 @@
+﻿pdfjoiner
+1.0.0.0
+
+winexe
+C#
+.cs
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.DesktopClient\obj\Release\netcoreapp3.1\win-x64\
+pdfjoiner.DesktopClient
+none
+false
+TRACE;RELEASE;NETCOREAPP;NETCOREAPP3_1
+B:\Documents\SoftwareProjects\pdfjoiner\pdfjoiner.DesktopClient\App.xaml
+91589733386
+
+22-1066244567
+203-836336098
+MainWindow.xaml;Styles\Buttons.xaml;Styles\Colors.xaml;Styles\Fonts.xaml;Styles\Texts.xaml;Styles\Windows.xaml;User Controls\DocumentListControl\DocumentListControl.xaml;User Controls\DocumentSegmentControl.xaml;User Controls\FileExplorer\FileExplorer.xaml;
+
+False
+

@@ -1,0 +1,3 @@
+﻿* General
+** TODO Link Generator and GUI together
+** TODO Add function to Add/Remove/Clear Documents to the dictionary

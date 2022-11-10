@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\pdfjoiner.DesktopClient",
+    "\\pdfjoiner.DesktopClient\\Document",
+    "\\pdfjoiner.DesktopClient\\Images",
+    "\\pdfjoiner.DesktopClient\\Properties",
+    "\\pdfjoiner.DesktopClient\\View Model"
+  ],
+  "SelectedNode": "\\pdfjoiner.DesktopClient\\Document\\DocumentGenerator.cs",
+  "PreviewInSolutionExplorer": false
+}

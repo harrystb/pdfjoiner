@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This file is compatible with Silverlight-->
+<Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Name="svg4510" Width="86" Height="30">
+  <Canvas.RenderTransform>
+    <TranslateTransform X="0" Y="0"/>
+  </Canvas.RenderTransform>
+  <Canvas.Resources>
+    <Image xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="_Image2" Source="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFYAAAAeCAYAAAC2Xen2AAAACXBIWXMAAA7EAAAOxAGVKw4bAAALV0lEQVRogcWa34slRxXHv+dUVfftuXP3R9Yku+smKksQM3kL+h/kKa+i+B8oij74IOIPfDGgKEp8CebBp7yEKMEnSSCLQsAIQVxYoztOhDU7k+yQZH7tvXNnuur4cKq6q/v2nRlRYg1N39u/TtWnv3XOqXOHRGQMYALgQQBXAXwcwKV4zAKoARwBmMftEIAHEAAIAIobADC6jfDRN+l9D2e4Jv8esr2gHf8MwH0AOwA+ALC/vr4+v3Hjhtnc3AwAsLa2FqBsYAGUAM4DeAgK9TKACwDKg70ZP//T36z97dbGI5vvbF2dzg5XrLFgMjDGgFg5MhGIlSFzy5b5o+UaQp8XEEKXq/SuCSLZudA8R4KAQBAIRAhMFoUd7a1W59cLO37jE0+Mf/SPD/5wOJ/PeWdnJ8xms+ONjY2j69ev89ra2jGJyKMArgD4FIBHoModv/7qzUvPfO/Zp3d2d1YLO0LhKjhTwhgHyxZsDJgJRKT7BDnCJPp/iBUQGYLbPSYZ7HQu3ZegAirXEAQIBAhAMDBcwpKDNaN3gz349lt7L7/BzBJCmInI9PLly/PJZHJIIvJpAJ+Egr0K4Pzrr958+Jtf+/4XmSxGxRgr5QSjYozCVrCmhHOqWjYEJgaxKpYjTMqU+p+oNg3ytHuGlDnUTlbn4ucgARJE4YoeDyJAAEQACIFgQDBgOFgqZfvor1+5ee/lm865uTFm1zm399hjj80sgBUAq3FvD/Zm/Mz3nn1aoa5iUl3EuLyIldE5FLZC4QpVKxlYwyBGA5WigvtwqO95FwCcidOZ2xD4vpJbmNJ8l6DXKVhpIQMIXs9DCAADnkFk6Jr77HfX7e+/sTe9twuALly4ELa2tmoLoIL6WQZQ//Inv358Z3dndVSMMakuYjJ6EJOVB7BSTODcCM666F8J1jKIIljDSO6VMp+r35dDGJi5J7a+ChsbTEvPDbuH9lwz9aNSQxAFGc/59NmTKtkDJIwQCAS+9uSVLzz12sYvbhARDg4Ojuq6nlkADhrEBMDRW7c2Hi3sCCO3inF5EZOVB7A6uohROYazBYwxMIZhTPSvRqESpyDW+tfT4PbHuwzMf9uGwKZZEqRVqmQuQESBqlJ17xmgmPiYKCoR4KHq2hP0Nv0ZgCeiqXNu30KVKtCUgjb/tXXVmhFGxRhVMUHlVlG6MUpXwVrNBpgVqDEJbOsG2FBHuf2WYHd8XDbw8D9yC8z6rLTvN2lcwCLU4NW3mghWoQqYBUQEVzLKkQWxgh3VVz7jvR+LyBzAynw+L3KwxwBwOJ+vlHYl+tMKRVHBOZ3+hg2M5Qwqt2AJMMnnRuUCJ2cH0gkmEcgZfIOERb89ZMf09ieBTQEreAGbCJQEngREAiCASMCGUIwMisrCOpVsJfYSM1cAKu996ZwrbbTjoWCDBiUHZ0sUroA1FoatKtUMQ+0otwliEdQJET50VJug9YLMEOiMVB8oDdjrM89tqVoJHF2CpwARArGAWIHqPXFGWnUDtiAUEZ/3Acxc1HVdWGuLuq5t8q1pxSCGDYyxMBzTCmKd+oyYXi2Hyoajcrs+dploWVq3kAYbFq6lEwPcsheY2xyCrS+QFoIVMSP43CADUNhC+tzGFToCCGDPEBFrrXUiYkWEE9gEVwgp6Tdg5sZ3pumtUx0NwByqiS6BM7BncQVCrYryy4eA9nPdIYDLoKa+iAhgqHmhCVYIOu3T1G9fAoGF1O8mt8fcCCgIYK01dV2zc86ICNm2CwgADDFr0h+N5UBT59KCoAFO1IGaA819YWdgQCtPjr0DgFxdA1lCH2gfZvt9uX1VaoILBB8awA3MbDalPF2SqFj5gAACAQyI3kBxfA1Y6e0HOtOtCbQDyQaTAz8pM2jmbwaY4yAoDWw4Nx2aAENQ+/Z5YZFCmi2wgMEawGKXRFQgGiRJVcwA5dlFSiulW2kSEaqqqqPYj6QtS3/ydpJPHXIZectfZA516AUzC0IgpRkiQOqJhtARSz57B8bTGDllsbl8Kbhs8G2kHb4/9I7neWT+XAlZbpltIV/LN8l81/ayvg+1XMlD/nixna32seAK8s61Sz3dgggYcXoaalIVIWndpSH1jYzMhw6vfHI7CZJ2Qq8ZSsdS6wSxuJ4n7tpOytKFggzCymfPskVL+i5BujHghJayAmT7aKRrLKkweHXmwcdp4xehsSGIjxGWCeIXDecQ8zV6OnbaQNtA2EZ1SX0SqG2hOJWhUx7SUWgI7bhEurMjMchfeM4h0eoHPQCYzWaSK1Z9t+hLD3E1EqRrPAhAPoCIETzSbZlhBcRpkRDB59MshxoWALezZAho21SBlOqo2cKE42D7gJOdth8RcMwKmmpWrwij53KXpAYojUsfSgBwfHws1lrYSCYtEEI/j2yMxGVeaprrpaZwRaRx8mmgem0LOB9cfzYsg7qs/sqdDGTRNlF6wdKuBnuzpz9jQl4faD4HeK9UJbR5vKZcWuSv67qBC7S/aR0jZZNC6htD+3ZS6Sz3FjUCjBBEOF4XerlvVOopC4QcaApKXehLb0eIwNRO1/YyyAvP6FW0FqG2ZcMQBC7m6cwEMqwuNyYfdV2LtbYD9ghRuSQGiJL3PnQqOwNpLiQESCAEryuw/mCBxeXmkC9dBjRXdd7y0mRKiUKmzCHIHosvuuNjQzvm/tb4VSKwJRjLMI5gmMBBUNd1cgWBmWsboR5CFXtcFtUewZyDRNUGQvBAYA1GIbmUuAlHeyH61mwwDcheVpD/YpCnZiH7nMMcrtNGiPF64q7t0ADtuYKeOPovNwfpYy1Wb9HKli0Y5cigrAzK0gIEHOzv7UewYowJRBQsgClUuQTgcLU6v354ePQkAgMxtSJwp9aqy1aNtswAxWirSpX4qHwAvQIJd2FpXVNAIk2KlKKtLikHuAKZb0UGLsHr92HJM5rY0wZZii7QWBUVGy3W2IIxnjisnCtQTRxcyUAAbv/zzl0AVNd1ba2tmdlb6P8K3Ie6ggPL1R8N8CRgIIGggAFXMopKCzMt3PjTTPbLwbI1fL8tnfoDNdr+cX1utxaQbDeugVr7/WOLfcn9LBpf2wFuCOXIYOVcgdVzBcoVC2sV+MadW3e99zUzz7330/l8PrdQNyBQF7T/sUf5x+/erj5vyD1MonCNZRSlQVk5OEcgQzDc/pDYFCSoC/O0n8CbqT4ANRfbUADL6ild0EteNPLPC/1oP+RgEWsBbNAwqCYO5YpFMWIwEbbvbe+99MpzG977KREdFEUxs9YeJ8UGAPX6+vr8vfDm4bG5/q2Kzv+KYLR+Q6pQ5whupJVzLbhkSmlo9gZ+SutA68BcTM/y1ikNEnXsdl5wPotO6FOzMIhwU1+IADDBOkZRGLiSYW2sdgH42fM/+N10djA1xuwz8673fq+qqjmj/deh+QsvvECbm5u0Pv3tn+7Nbn0ZgndIjBrtDVBFmv/pao+hG53xL13PzTMXn820uOXnCF27qeKUnk/xewq4nV43x/J+54MkHVcanOj03763vfedH371xb/cfv09Zn5fRLa99++XZXl/NpvNUrqV0mbe3d31s9nMv7n/4s2/F699/XOPfOmpB8trT4yOrzw+CvZS8AGBNXfl+E84yRV0FHSGwNGqZdgFtOcXj3XU13EHkilUOhd3g9sSG/lMQfLhhOADDvYO9m+/fefuxp1bd1965bmN6exgGqFuishWVVUfTCaT+1VVHaWVF8V9UVWV//DDDw+ttYc703d3X7398xt1Xb/JzBMRGRljChGxxhgDgKy1TXdNKqnHlp8banVdd0bo/UDhYeC6oWcn2+n4su8ntWS/rmvx3ouIkPcedV1T2gCQ97723k+NMfsisi0iW6PR6L3JZLJ7dHQ0XVtbq/8NUQQ6WOTsJQIAAAAASUVORK5CYII=" Width="86" Height="30" x:Key="_Image2"/>
+  </Canvas.Resources>
+  <!--Unknown tag: metadata-->
+  <!--Unknown tag: sodipodi:namedview-->
+  <Canvas Name="g4505">
+    <Canvas.RenderTransform>
+      <MatrixTransform Matrix="1 0 0 1 -536 -71"/>
+    </Canvas.RenderTransform>
+    <Canvas Name="AddDepressed">
+      <Canvas.RenderTransform>
+        <MatrixTransform Matrix="1 0 0 1 91 42"/>
+      </Canvas.RenderTransform>
+      <Rectangle xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Canvas.Left="445" Canvas.Top="29" Width="86" Height="30" Name="rect4485" StrokeMiterLimit="2" StrokeLineJoin="Round"/>
+      <RectangleGeometry xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="_clip1" Rect="445, 29, 86, 30"/>
+      <Canvas Name="g4502" Clip="{StaticResource _clip1}">
+        <Canvas Name="g4500">
+          <Canvas Name="g4494">
+            <Canvas Name="g4492">
+              <Canvas.RenderTransform>
+                <MatrixTransform Matrix="1 -0 -0 1 445 29"/>
+              </Canvas.RenderTransform>
+            </Canvas>
+          </Canvas>
+          <Canvas Name="g4498">
+            <Canvas.RenderTransform>
+              <MatrixTransform Matrix="1 0 0 1 -1.0033 0.537598"/>
+            </Canvas.RenderTransform>
+            <TextBlock xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" FontSize="14" FontWeight="Bold" FontFamily="Arial-BoldMT, Arial, sans-serif" Foreground="#A70000" Canvas.Left="457" Canvas.Top="33" Name="text4496">Add Page</TextBlock>
+          </Canvas>
+        </Canvas>
+      </Canvas>
+      <Canvas.Resources>
+        <RectangleGeometry xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="_clip1" Rect="445, 29, 86, 30"/>
+      </Canvas.Resources>
+    </Canvas>
+  </Canvas>
+</Canvas>
