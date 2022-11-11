@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 lopdf = "0.29.0"
 eframe = "0.19"
+rfd = "0.10.0"
