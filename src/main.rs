@@ -1,7 +1,7 @@
 use eframe::egui;
 use eframe::egui::widgets::{Button, Label};
 use eframe::egui::{
-    Align, Color32, Context, Frame, Layout, RichText, Sense, SidePanel, TopBottomPanel,
+    Align, Color32, Context, Frame, Layout, RichText, Sense, SidePanel, TopBottomPanel, Window,
 };
 use rfd::FileDialog;
 use std::cmp::Ordering;
@@ -19,12 +19,37 @@ fn main() {
 
 struct PdfFile {
     path: PathBuf,
-    data: Option<lopdf::Document>,
+    data: lopdf::Document,
 }
 
 impl PdfFile {
-    fn new(path: PathBuf) -> Self {
-        Self { path, data: None }
+    fn new(path: PathBuf, data: lopdf::Document) -> Self {
+        Self { path, data }
+    }
+}
+
+struct MsgBox {
+    msg: String,
+    title: String,
+    open: bool,
+}
+
+impl MsgBox {
+    fn new<T: Into<String>>(title: T, msg: T) -> Self {
+        Self {
+            msg: msg.into(),
+            title: title.into(),
+            open: true,
+        }
+    }
+
+    fn show(&mut self, ctx: &Context) -> bool {
+        Window::new(&self.title)
+            .open(&mut self.open)
+            .show(ctx, |ui| {
+                ui.label(&self.msg);
+            })
+            .is_none()
     }
 }
 
@@ -32,26 +57,45 @@ struct PdfJoinerApp {
     version: String,
     pdfs: HashMap<String, PdfFile>,
     selected_pdf: Option<String>,
+    msg_boxes: Vec<MsgBox>,
 }
 
 impl Default for PdfJoinerApp {
     fn default() -> Self {
         PdfJoinerApp {
-            version: "0.1".to_owned(),
+            version: env!("CARGO_PKG_VERSION").to_owned(),
             pdfs: HashMap::new(),
             selected_pdf: None,
+            msg_boxes: vec![],
         }
     }
 }
 
 impl eframe::App for PdfJoinerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
+        self.render_msgboxes(ctx);
         self.render_header(ctx);
         self.render_footer(ctx);
         self.render_left_panel(ctx);
         self.render_right_panel(ctx);
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.label("Hello");
+            ui.vertical(|ui| {
+                ui.heading("Page Selection");
+                match &self.selected_pdf {
+                    None => (),
+                    Some(selected_pdf) => {
+                        ui.label(selected_pdf);
+                        match self.pdfs.get_mut(selected_pdf) {
+                            None => {
+                                ui.label(format!("Pdf '{}' no found in list.", selected_pdf));
+                            }
+                            Some(pdf_file) => {
+                                ui.label(format!("Pages: {}", pdf_file.data.get_pages().len()));
+                            }
+                        }
+                    }
+                }
+            });
         });
     }
 }
@@ -61,6 +105,19 @@ const SELECTED_BG_COLOUR: Color32 = Color32::from_rgb(100, 103, 105);
 const SELECTED_FG_COLOUR: Color32 = Color32::from_rgb(10, 13, 15);
 
 impl PdfJoinerApp {
+    fn render_msgboxes(&mut self, ctx: &Context) {
+        let mut closed_msgboxes = vec![];
+        for (index, msgbox) in self.msg_boxes.iter_mut().enumerate() {
+            if msgbox.show(ctx) {
+                closed_msgboxes.push(index);
+            }
+        }
+        closed_msgboxes.reverse();
+        for index in closed_msgboxes {
+            self.msg_boxes.remove(index);
+        }
+    }
+
     fn render_footer(&self, ctx: &Context) {
         let mut frame = egui::Frame::default();
         frame.fill = HEADER_FOOTER_BG_COLOUR;
@@ -95,7 +152,15 @@ impl PdfJoinerApp {
                     .unwrap_or(file.as_os_str())
                     .to_string_lossy()
                     .to_string();
-                self.pdfs.insert(title, PdfFile::new(file.to_owned()));
+                match lopdf::Document::load(file.as_path()) {
+                    Err(e) => self.msg_boxes.push(MsgBox::new(
+                        "Error while loading pdf".to_owned(),
+                        format!("Could load pdf '{}'.\n{:?}.\nContact Harrison St Baker with this error if you believe this is a valid pdf.", title, e),
+                    )),
+                    Ok(d) => {
+                        self.pdfs.insert(title, PdfFile::new(file.to_owned(), d));
+                    }
+                }
             }
         }
         let resp = SidePanel::left("files").show(ctx, |ui| {
@@ -115,7 +180,15 @@ impl PdfJoinerApp {
                             .unwrap_or(file.as_os_str())
                             .to_string_lossy()
                             .to_string();
-                        self.pdfs.insert(title, PdfFile::new(file));
+                        match lopdf::Document::load(file.as_path()) {
+                            Err(e) => self.msg_boxes.push(MsgBox::new(
+                                "Error while loading pdf".to_owned(),
+                                format!("Could load pdf '{}'.\n{:?}.\nContact Harrison St Baker (harry.stbaker@gmail.com) with this error if you believe this is a valid pdf.", title, e),
+                            )),
+                            Ok(d) => {
+                                self.pdfs.insert(title, PdfFile::new(file, d));
+                            }
+                        }
                     }
                 }
                 ui.separator();
