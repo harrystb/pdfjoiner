@@ -1,9 +1,9 @@
-use eframe::egui;
 use eframe::egui::widgets::{Button, Label};
 use eframe::egui::{
-    Align, Color32, Context, Frame, Layout, RichText, Sense, SidePanel, Slider, TopBottomPanel,
-    Window,
+    Align, Color32, Context, CursorIcon, Frame, Id, LayerId, Layout, Order, Response, RichText,
+    Sense, Shape, SidePanel, Slider, TopBottomPanel, Ui, Vec2, Window,
 };
+use eframe::{egui, epaint};
 use rfd::FileDialog;
 use std::cmp::Ordering;
 use std::collections::HashMap;
@@ -12,7 +12,7 @@ use std::path::PathBuf;
 
 fn main() {
     let mut options = eframe::NativeOptions::default();
-    options.min_window_size = Some((150.0, 370.0).into());
+    options.min_window_size = Some((900.0, 600.0).into());
     options.drag_and_drop_support = true;
     //options.max_window_size = Some((150.0,370.0).into());
     let mut app = PdfJoinerApp::default();
@@ -70,7 +70,10 @@ struct PdfJoinerApp {
     from_page: usize,
     to_page: usize,
     segments: HashMap<usize, (usize, usize, usize)>,
+    segment_order: Vec<usize>,
     current_segment_id: usize,
+    source_index: usize,
+    drop_index: usize,
 }
 
 impl Default for PdfJoinerApp {
@@ -84,7 +87,10 @@ impl Default for PdfJoinerApp {
             from_page: 0,
             to_page: 0,
             segments: HashMap::new(),
+            segment_order: vec![],
             current_segment_id: 0,
+            source_index: 0,
+            drop_index: 0,
         }
     }
 }
@@ -120,7 +126,7 @@ impl eframe::App for PdfJoinerApp {
                                 )
                                 .text("From"),
                             );
-                            if resp.clicked() || resp.dragged() {
+                            if resp.clicked() || resp.dragged() || resp.lost_focus() {
                                 if self.from_page > self.to_page {
                                     self.to_page = self.from_page;
                                 }
@@ -129,7 +135,7 @@ impl eframe::App for PdfJoinerApp {
                                 Slider::new(&mut self.to_page, RangeInclusive::new(0, page_count))
                                     .text("To"),
                             );
-                            if resp.clicked() || resp.dragged() {
+                            if resp.clicked() || resp.dragged() || resp.lost_focus() {
                                 if self.to_page < self.from_page {
                                     self.from_page = self.to_page;
                                 }
@@ -143,6 +149,7 @@ impl eframe::App for PdfJoinerApp {
                                         self.to_page.to_owned(),
                                     ),
                                 );
+                                self.segment_order.push(self.current_segment_id);
                                 self.current_segment_id += 1;
                             }
                         }
@@ -225,6 +232,7 @@ impl PdfJoinerApp {
                     .iter()
                     .map(|(id, v)| (id.to_owned(), v.title.to_owned()))
                     .collect();
+                pdfs_names.sort_by_key(|v| v.0);
                 for (id, pdf_title) in pdfs_names {
                     ui.with_layout(Layout::right_to_left(Align::TOP), |ui| {
                         if ui.add(Button::new("X").small()).clicked() {
@@ -244,10 +252,11 @@ impl PdfJoinerApp {
                             ui.with_layout(Layout::left_to_right(Align::TOP), |ui| {
                                 let mut l = match is_selected {
                                     true => Label::new(
-                                        RichText::new(format!("{} - {}", id, pdf_title))
+                                        RichText::new(format!("({}) {}", id, pdf_title))
                                             .color(SELECTED_FG_COLOUR),
                                     ),
-                                    false => Label::new(pdf_title).sense(Sense::click()),
+                                    false => Label::new(format!("({}) {}", id, pdf_title))
+                                        .sense(Sense::click()),
                                 };
                                 if ui.add(l).clicked() {
                                     self.from_page = 0;
@@ -265,6 +274,28 @@ impl PdfJoinerApp {
         });
     }
 
+    // Dragging based on eGui example https://github.com/emilk/egui/blob/master/crates/egui_demo_lib/src/demo/drag_and_drop.rs
+    fn draggable_item(ui: &mut Ui, item_id: Id, item_ui: impl FnOnce(&mut Ui)) -> bool {
+        let is_being_dragged = ui.memory().is_being_dragged(item_id);
+        if !is_being_dragged {
+            let response = ui.scope(item_ui).response;
+            let response = ui.interact(response.rect, item_id, Sense::drag());
+            if response.hovered() {
+                ui.output().cursor_icon = CursorIcon::Grab;
+            }
+        } else {
+            ui.output().cursor_icon = CursorIcon::Grabbing;
+            let layer_id = LayerId::new(Order::Tooltip, item_id);
+            let response = ui.with_layer_id(layer_id, item_ui).response;
+            // move item to be under cursor
+            if let Some(pointer_pos) = ui.ctx().pointer_interact_pos() {
+                let delta = pointer_pos - response.rect.center();
+                ui.ctx().translate_layer(layer_id, delta.clone());
+            }
+        }
+        is_being_dragged
+    }
+
     fn render_right_panel(&mut self, ctx: &Context) {
         SidePanel::right("generation").show(ctx, |ui| {
             ui.vertical(|ui| {
@@ -275,39 +306,101 @@ impl PdfJoinerApp {
                     .clicked()
                 {}
                 ui.separator();
-                let segments: Vec<(usize, (usize, usize, usize))> = self
-                    .segments
-                    .iter()
-                    .map(|(seg_id, (id, from, to))| {
-                        (
-                            seg_id.to_owned(),
-                            (id.to_owned(), from.to_owned(), to.to_owned()),
-                        )
-                    })
-                    .collect();
-                for (segment_id, (id, from, to)) in segments {
-                    ui.with_layout(Layout::right_to_left(Align::TOP), |ui| {
-                        if ui.add(Button::new("X").small()).clicked() {
-                            self.segments.remove(&segment_id);
-                        }
-                        match self.pdfs.get(&id) {
-                            None => {
-                                ui.label(
-                                    RichText::new(format!("Id {} no longer found.", id))
-                                        .color(Color32::RED),
-                                );
+                let mut segments_to_remove = vec![];
+                for (segment_id_index, segment_id) in self.segment_order.clone().iter().enumerate()
+                {
+                    if let Some(temp_val) = self.segments.get(&segment_id) {
+                        let (id, from, to) = temp_val.to_owned();
+                        let item_id = Id::new(segment_id);
+                        if PdfJoinerApp::draggable_item(ui, item_id, |ui| {
+                            let response = ui
+                                .with_layout(Layout::right_to_left(Align::TOP), |ui| {
+                                    if ui.add(Button::new("X").small()).clicked() {
+                                        segments_to_remove.push(segment_id.to_owned());
+                                    }
+                                    match self.pdfs.get(&id) {
+                                        None => {
+                                            ui.label(
+                                                RichText::new(format!(
+                                                    "Id {} no longer found.",
+                                                    id
+                                                ))
+                                                .color(Color32::RED),
+                                            );
+                                        }
+                                        Some(pdffile) => {
+                                            ui.with_layout(
+                                                Layout::left_to_right(Align::TOP),
+                                                |ui| {
+                                                    ui.label(format!(
+                                                        "({}){}\nFrom: {} To: {}",
+                                                        id, pdffile.title, from, to
+                                                    ));
+                                                },
+                                            );
+                                        }
+                                    }
+                                })
+                                .response;
+                            if response.hovered() {
+                                if let Some(pointer_pos) = ui.ctx().pointer_interact_pos() {
+                                    let delta = pointer_pos - response.rect.center();
+                                    if delta.y < 0.0 {
+                                        // put before
+                                        self.drop_index = segment_id_index.clone();
+                                    } else {
+                                        //put after
+                                        self.drop_index = segment_id_index.clone() + 1;
+                                    }
+                                }
                             }
-                            Some(pdffile) => {
-                                ui.with_layout(Layout::left_to_right(Align::TOP), |ui| {
-                                    ui.label(format!(
-                                        "{}\nFrom: {} To: {}",
-                                        pdffile.title, from, to
-                                    ));
-                                });
-                            }
+                        }) {
+                            self.source_index = segment_id_index.clone();
                         }
-                    });
+                    }
                 }
+                let mut something_is_being_dragged = ui.memory().is_anything_being_dragged();
+                // TODO: Remove if I don't run into issues without it. It is a rectangle to allow putting the item at the end but the changes to check relative position seem to do it better.
+                // if something_is_being_dragged {
+                //     let where_to_put_background = ui.painter().add(Shape::Noop);
+                //     let (rect, response) =
+                //         ui.allocate_at_least(Vec2::new(ui.available_width(), 20.), Sense::hover());
+                //     let style = ui.visuals().widgets.active;
+                //     ui.painter().set(
+                //         where_to_put_background,
+                //         eframe::epaint::RectShape {
+                //             rounding: style.rounding,
+                //             fill: style.bg_fill,
+                //             stroke: style.bg_stroke,
+                //             rect,
+                //         },
+                //     );
+                //     if response.hovered() {
+                //         self.drop_index = self.segment_order.len();
+                //     }
+                // }
+                for segment_id in segments_to_remove {
+                    self.segments.remove(&segment_id);
+                }
+                if something_is_being_dragged && ui.input().pointer.any_released() {
+                    // re-arrange
+                    if self.source_index != self.drop_index {
+                        let removed_segment_id = self.segment_order.remove(self.source_index);
+                        let mut target_index = self.drop_index;
+                        // if the source is less than the drop, the index will shift when we remove the item
+                        if self.source_index < self.drop_index {
+                            target_index -= 1;
+                        }
+                        self.segment_order.insert(target_index, removed_segment_id);
+                    }
+                }
+                println!(
+                    "{},{},{},{}",
+                    self.source_index,
+                    self.drop_index,
+                    something_is_being_dragged,
+                    ui.input().pointer.any_released()
+                );
             });
         });
     }
