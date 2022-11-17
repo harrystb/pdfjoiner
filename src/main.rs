@@ -1,11 +1,11 @@
+use eframe::egui;
 use eframe::egui::widgets::{Button, Label};
 use eframe::egui::{
-    Align, Color32, Context, CursorIcon, Frame, Id, LayerId, Layout, Order, Response, RichText,
-    Sense, Shape, SidePanel, Slider, TopBottomPanel, Ui, Vec2, Window,
+    Align, Color32, Context, CursorIcon, Frame, Id, LayerId, Layout, Order, RichText, Sense,
+    SidePanel, Slider, TopBottomPanel, Ui, Window,
 };
-use eframe::{egui, epaint};
 use rfd::FileDialog;
-use std::cmp::Ordering;
+use std::collections::btree_map::BTreeMap;
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
 use std::path::PathBuf;
@@ -15,12 +15,11 @@ fn main() {
     options.min_window_size = Some((900.0, 600.0).into());
     options.drag_and_drop_support = true;
     //options.max_window_size = Some((150.0,370.0).into());
-    let mut app = PdfJoinerApp::default();
+    let app = PdfJoinerApp::default();
     eframe::run_native("PDFJoiner", options, Box::new(|_cc| Box::new(app)));
 }
 
 struct PdfFile {
-    path: PathBuf,
     title: String,
     data: lopdf::Document,
 }
@@ -32,7 +31,7 @@ impl PdfFile {
             .unwrap_or(path.as_os_str())
             .to_string_lossy()
             .to_string();
-        Self { path, title, data }
+        Self { title, data }
     }
 }
 
@@ -210,7 +209,7 @@ impl PdfJoinerApp {
                 self.add_pdf_file(file);
             }
         }
-        let resp = SidePanel::left("files").show(ctx, |ui| {
+        SidePanel::left("files").show(ctx, |ui| {
             ui.vertical(|ui| {
                 ui.heading("1. Select Documents");
                 ui.add_space(4.0);
@@ -250,7 +249,7 @@ impl PdfJoinerApp {
                         };
                         frame.show(ui, |ui| {
                             ui.with_layout(Layout::left_to_right(Align::TOP), |ui| {
-                                let mut l = match is_selected {
+                                let l = match is_selected {
                                     true => Label::new(
                                         RichText::new(format!("({}) {}", id, pdf_title))
                                             .color(SELECTED_FG_COLOUR),
@@ -304,7 +303,9 @@ impl PdfJoinerApp {
                 if ui
                     .add_sized([ui.available_width(), 20.], Button::new("Generate"))
                     .clicked()
-                {}
+                {
+                    self.generate_pdf();
+                }
                 ui.separator();
                 let mut segments_to_remove = vec![];
                 for (segment_id_index, segment_id) in self.segment_order.clone().iter().enumerate()
@@ -359,7 +360,7 @@ impl PdfJoinerApp {
                         }
                     }
                 }
-                let mut something_is_being_dragged = ui.memory().is_anything_being_dragged();
+                let something_is_being_dragged = ui.memory().is_anything_being_dragged();
                 // TODO: Remove if I don't run into issues without it. It is a rectangle to allow putting the item at the end but the changes to check relative position seem to do it better.
                 // if something_is_being_dragged {
                 //     let where_to_put_background = ui.painter().add(Shape::Noop);
@@ -380,6 +381,8 @@ impl PdfJoinerApp {
                 //     }
                 // }
                 for segment_id in segments_to_remove {
+                    // remove from segments and the segment order vec
+                    self.segment_order.retain(|v| *v != segment_id);
                     self.segments.remove(&segment_id);
                 }
                 if something_is_being_dragged && ui.input().pointer.any_released() {
@@ -394,13 +397,6 @@ impl PdfJoinerApp {
                         self.segment_order.insert(target_index, removed_segment_id);
                     }
                 }
-                println!(
-                    "{},{},{},{}",
-                    self.source_index,
-                    self.drop_index,
-                    something_is_being_dragged,
-                    ui.input().pointer.any_released()
-                );
             });
         });
     }
@@ -415,6 +411,223 @@ impl PdfJoinerApp {
                 self.pdfs.insert(self.current_id, PdfFile::new(file.to_owned(), d));
                 self.current_id += 1;
             }
+        }
+    }
+
+    fn generate_pdf(&mut self) {
+        let mut max_id = 1;
+        // Collect all Documents Objects grouped by a map
+        let mut documents_pages: BTreeMap<lopdf::ObjectId, lopdf::Object> = BTreeMap::new();
+        let mut documents_objects: BTreeMap<lopdf::ObjectId, lopdf::Object> = BTreeMap::new();
+        let mut document = lopdf::Document::with_version("1.5");
+        let mut pdf_index_being_joined: Vec<usize> = self.segments.values().map(|v| v.0).collect();
+        pdf_index_being_joined.sort();
+        pdf_index_being_joined.dedup();
+        let mut pdfs_being_joined = HashMap::new();
+        for index in pdf_index_being_joined {
+            match self.pdfs.get(&index) {
+                None => {
+                    self.msg_boxes.push(MsgBox::new(
+                        "Cannot generate document",
+                        format!("Invalid document index {}.", index).as_str(),
+                    ));
+                    return;
+                }
+                Some(pdf) => {
+                    let mut doc = pdf.data.clone();
+                    // renumber the objects in the documents so we can join it
+                    doc.renumber_objects_with(max_id);
+                    max_id = doc.max_id + 1;
+                    pdfs_being_joined.insert(index, doc);
+                }
+            }
+        }
+        for segment_id in &self.segment_order {
+            match self.segments.get(segment_id) {
+                None => {
+                    self.msg_boxes.push(MsgBox::new(
+                        "Cannot generate document",
+                        format!("Invalid segment id {}.", segment_id).as_str(),
+                    ));
+                    return;
+                }
+                Some((doc_id, from, to)) => match pdfs_being_joined.get(doc_id) {
+                    None => {
+                        self.msg_boxes.push(MsgBox::new(
+                            "Cannot generate document",
+                            format!("Invalid document id {}.", doc_id).as_str(),
+                        ));
+                        return;
+                    }
+                    Some(doc) => {
+                        documents_pages.extend(
+                            doc.get_pages()
+                                .into_iter()
+                                .filter(|(i, _)| *i as usize >= *from && *i as usize <= *to)
+                                .map(|(_, object_id)| {
+                                    (object_id, doc.get_object(object_id).unwrap().to_owned())
+                                }),
+                        );
+                    }
+                },
+            }
+        }
+        pdfs_being_joined.iter().for_each(|(_, doc)| {
+            documents_objects.extend(
+                doc.objects
+                    .iter()
+                    .map(|(k, v)| (k.to_owned(), v.to_owned())),
+            );
+        });
+        let mut catalog_object: Option<(lopdf::ObjectId, lopdf::Object)> = None;
+        let mut pages_object: Option<(lopdf::ObjectId, lopdf::Object)> = None;
+        // Process all objects except "Page" type
+        for (object_id, object) in documents_objects.iter() {
+            // We have to ignore "Page" (as are processed later), "Outlines" and "Outline" objects
+            // All other objects should be collected and inserted into the main Document
+            match object.type_name().unwrap_or("") {
+                "Catalog" => {
+                    // Collect a first "Catalog" object and use it for the future "Pages"
+                    catalog_object = Some((
+                        if let Some((id, _)) = catalog_object {
+                            id
+                        } else {
+                            *object_id
+                        },
+                        object.clone(),
+                    ));
+                }
+                "Pages" => {
+                    // Collect and update a first "Pages" object and use it for the future "Catalog"
+                    // We have also to merge all dictionaries of the old and the new "Pages" object
+                    if let Ok(dictionary) = object.as_dict() {
+                        let mut dictionary = dictionary.clone();
+                        if let Some((_, ref object)) = pages_object {
+                            if let Ok(old_dictionary) = object.as_dict() {
+                                dictionary.extend(old_dictionary);
+                            }
+                        }
+
+                        pages_object = Some((
+                            if let Some((id, _)) = pages_object {
+                                id
+                            } else {
+                                *object_id
+                            },
+                            lopdf::Object::Dictionary(dictionary),
+                        ));
+                    }
+                }
+                "Page" => {}     // Ignored, processed later and separately
+                "Outlines" => {} // Ignored, not supported yet
+                "Outline" => {}  // Ignored, not supported yet
+                _ => {
+                    document.objects.insert(*object_id, object.clone());
+                }
+            }
+        }
+
+        // If no "Pages" found abort
+        if pages_object.is_none() {
+            self.msg_boxes.push(MsgBox::new(
+                "Cannot generate document",
+                "Error generating the document - could not find page root.",
+            ));
+            return;
+        }
+
+        // Iter over all "Page" and collect with the parent "Pages" created before
+        for (object_id, object) in documents_pages.iter() {
+            if let Ok(dictionary) = object.as_dict() {
+                let mut dictionary = dictionary.clone();
+                dictionary.set("Parent", pages_object.as_ref().unwrap().0);
+
+                document
+                    .objects
+                    .insert(*object_id, lopdf::Object::Dictionary(dictionary));
+            }
+        }
+
+        // If no "Catalog" found abort
+        if catalog_object.is_none() {
+            self.msg_boxes.push(MsgBox::new(
+                "Cannot generate document",
+                "Error generating the document - could not find catelog root.",
+            ));
+            return;
+        }
+
+        let catalog_object = catalog_object.unwrap();
+        let pages_object = pages_object.unwrap();
+
+        // Build a new "Pages" with updated fields
+        if let Ok(dictionary) = pages_object.1.as_dict() {
+            let mut dictionary = dictionary.clone();
+
+            // Set new pages count
+            dictionary.set("Count", documents_pages.len() as u32);
+
+            // Set new "Kids" list (collected from documents pages) for "Pages"
+            dictionary.set(
+                "Kids",
+                documents_pages
+                    .into_iter()
+                    .map(|(object_id, _)| lopdf::Object::Reference(object_id))
+                    .collect::<Vec<_>>(),
+            );
+
+            document
+                .objects
+                .insert(pages_object.0, lopdf::Object::Dictionary(dictionary));
+        }
+
+        // Build a new "Catalog" with updated fields
+        if let Ok(dictionary) = catalog_object.1.as_dict() {
+            let mut dictionary = dictionary.clone();
+            dictionary.set("Pages", pages_object.0);
+            dictionary.remove(b"Outlines"); // Outlines not supported in merged PDFs
+
+            document
+                .objects
+                .insert(catalog_object.0, lopdf::Object::Dictionary(dictionary));
+        }
+
+        document.trailer.set("Root", catalog_object.0);
+
+        // Update the max internal ID as wasn't updated before due to direct objects insertion
+        document.max_id = document.objects.len() as u32;
+
+        //prune unused pages
+        document.prune_objects();
+
+        // Reorder all new Document objects
+        document.renumber_objects();
+
+        //Set any Bookmarks to the First child if they are not set to a page
+        document.adjust_zero_pages();
+
+        //Set all bookmarks to the PDF Object tree then set the Outlines to the Bookmark content map.
+        if let Some(n) = document.build_outline() {
+            if let Ok(x) = document.get_object_mut(catalog_object.0) {
+                if let lopdf::Object::Dictionary(ref mut dict) = x {
+                    dict.set("Outlines", lopdf::Object::Reference(n));
+                }
+            }
+        }
+
+        document.compress();
+
+        match rfd::FileDialog::new().save_file() {
+            None => (), // do nothing
+            Some(p) => match document.save(p.as_path()) {
+                Err(e) => {
+                    self.msg_boxes.push(MsgBox::new(
+                        "Cannot generate document",
+                        format!("Error saving the document - {:?}.", e).as_str(),
+                    ));
+                }
+                _ => (),
+            },
         }
     }
 }
