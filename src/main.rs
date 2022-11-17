@@ -83,8 +83,8 @@ impl Default for PdfJoinerApp {
             current_id: 0,
             selected_pdf: None,
             msg_boxes: vec![],
-            from_page: 0,
-            to_page: 0,
+            from_page: 1,
+            to_page: 1,
             segments: HashMap::new(),
             segment_order: vec![],
             current_segment_id: 0,
@@ -121,7 +121,7 @@ impl eframe::App for PdfJoinerApp {
                             let resp = ui.add(
                                 Slider::new(
                                     &mut self.from_page,
-                                    RangeInclusive::new(0, page_count),
+                                    RangeInclusive::new(1, page_count),
                                 )
                                 .text("From"),
                             );
@@ -131,7 +131,7 @@ impl eframe::App for PdfJoinerApp {
                                 }
                             }
                             let resp = ui.add(
-                                Slider::new(&mut self.to_page, RangeInclusive::new(0, page_count))
+                                Slider::new(&mut self.to_page, RangeInclusive::new(1, page_count))
                                     .text("To"),
                             );
                             if resp.clicked() || resp.dragged() || resp.lost_focus() {
@@ -258,9 +258,9 @@ impl PdfJoinerApp {
                                         .sense(Sense::click()),
                                 };
                                 if ui.add(l).clicked() {
-                                    self.from_page = 0;
+                                    self.from_page = 1;
                                     self.to_page = match self.pdfs.get(&id) {
-                                        None => 0,
+                                        None => 1,
                                         Some(pdffile) => pdffile.data.get_pages().len(),
                                     };
                                     self.selected_pdf = Some(id);
@@ -313,51 +313,42 @@ impl PdfJoinerApp {
                     if let Some(temp_val) = self.segments.get(&segment_id) {
                         let (id, from, to) = temp_val.to_owned();
                         let item_id = Id::new(segment_id);
-                        if PdfJoinerApp::draggable_item(ui, item_id, |ui| {
-                            let response = ui
-                                .with_layout(Layout::right_to_left(Align::TOP), |ui| {
-                                    if ui.add(Button::new("X").small()).clicked() {
-                                        segments_to_remove.push(segment_id.to_owned());
+                        ui.with_layout(Layout::right_to_left(Align::TOP), |ui| {
+                            if ui.add(Button::new("X").small()).clicked() {
+                                segments_to_remove.push(segment_id.to_owned());
+                            }
+                            if PdfJoinerApp::draggable_item(ui, item_id, |ui| {
+                                let response = match self.pdfs.get(&id) {
+                                    None => ui.label(
+                                        RichText::new(format!("Id {} no longer found.", id))
+                                            .color(Color32::RED),
+                                    ),
+                                    Some(pdffile) => {
+                                        ui.with_layout(Layout::left_to_right(Align::TOP), |ui| {
+                                            ui.label(format!(
+                                                "({}){}\nFrom: {} To: {}",
+                                                id, pdffile.title, from, to
+                                            ));
+                                        })
+                                        .response
                                     }
-                                    match self.pdfs.get(&id) {
-                                        None => {
-                                            ui.label(
-                                                RichText::new(format!(
-                                                    "Id {} no longer found.",
-                                                    id
-                                                ))
-                                                .color(Color32::RED),
-                                            );
+                                };
+                                if response.hovered() {
+                                    if let Some(pointer_pos) = ui.ctx().pointer_interact_pos() {
+                                        let delta = pointer_pos - response.rect.center();
+                                        if delta.y < 0.0 {
+                                            // put before
+                                            self.drop_index = segment_id_index.clone();
+                                        } else {
+                                            //put after
+                                            self.drop_index = segment_id_index.clone() + 1;
                                         }
-                                        Some(pdffile) => {
-                                            ui.with_layout(
-                                                Layout::left_to_right(Align::TOP),
-                                                |ui| {
-                                                    ui.label(format!(
-                                                        "({}){}\nFrom: {} To: {}",
-                                                        id, pdffile.title, from, to
-                                                    ));
-                                                },
-                                            );
-                                        }
-                                    }
-                                })
-                                .response;
-                            if response.hovered() {
-                                if let Some(pointer_pos) = ui.ctx().pointer_interact_pos() {
-                                    let delta = pointer_pos - response.rect.center();
-                                    if delta.y < 0.0 {
-                                        // put before
-                                        self.drop_index = segment_id_index.clone();
-                                    } else {
-                                        //put after
-                                        self.drop_index = segment_id_index.clone() + 1;
                                     }
                                 }
+                            }) {
+                                self.source_index = segment_id_index.clone();
                             }
-                        }) {
-                            self.source_index = segment_id_index.clone();
-                        }
+                        });
                     }
                 }
                 let something_is_being_dragged = ui.memory().is_anything_being_dragged();
