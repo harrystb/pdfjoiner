@@ -1,9 +1,10 @@
 use eframe::egui;
 use eframe::egui::widgets::{Button, Label};
 use eframe::egui::{
-    Align, Color32, Context, CursorIcon, Frame, Id, LayerId, Layout, Order, RichText, Sense,
-    SidePanel, Slider, TopBottomPanel, Ui, Window,
+    Align, Color32, Context, CursorIcon, Frame, Id, Image, ImageData, LayerId, Layout, Order,
+    RichText, Sense, SidePanel, Slider, TextStyle, TextureHandle, TopBottomPanel, Ui, Vec2, Window,
 };
+use egui_extras::image::RetainedImage;
 use rfd::FileDialog;
 use std::collections::btree_map::BTreeMap;
 use std::collections::HashMap;
@@ -73,10 +74,23 @@ struct PdfJoinerApp {
     current_segment_id: usize,
     source_index: usize,
     drop_index: usize,
+    header_img: RetainedImage,
 }
 
 impl Default for PdfJoinerApp {
     fn default() -> Self {
+        let header_banner_image = match cfg!(windows) {
+            true => RetainedImage::from_svg_bytes(
+                "header-banner.svg",
+                include_bytes!("resources\\bannerlogo.svg"),
+            )
+            .unwrap(),
+            false => RetainedImage::from_svg_bytes(
+                "header-banner.svg",
+                include_bytes!("resources/bannerlogo.svg"),
+            )
+            .unwrap(),
+        };
         PdfJoinerApp {
             version: env!("CARGO_PKG_VERSION").to_owned(),
             pdfs: HashMap::new(),
@@ -90,12 +104,24 @@ impl Default for PdfJoinerApp {
             current_segment_id: 0,
             source_index: 0,
             drop_index: 0,
+            header_img: header_banner_image,
         }
     }
 }
 
 impl eframe::App for PdfJoinerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
+        let mut style = (*ctx.style()).clone();
+        style.visuals.widgets.inactive.bg_fill = BUTTON_ACTIVE_COLOUR;
+        style.visuals.widgets.hovered.bg_fill = BUTTON_HOVER_COLOUR;
+        style.visuals.widgets.active.bg_fill = BUTTON_HOVER_COLOUR;
+        style.visuals.widgets.hovered.bg_stroke.color = BUTTON_HOVER_STROKE_COLOUR;
+        style.visuals.widgets.active.fg_stroke.color = BUTTON_TEXT_COLOUR;
+        style.visuals.widgets.inactive.fg_stroke.color = BUTTON_TEXT_COLOUR;
+        style.visuals.widgets.hovered.fg_stroke.color = BUTTON_TEXT_COLOUR;
+        let mut button_style = style.text_styles.get_mut(&TextStyle::Button).unwrap();
+        button_style.size = 16.;
+        ctx.set_style(style);
         self.render_msgboxes(ctx);
         self.render_header(ctx);
         self.render_footer(ctx);
@@ -158,6 +184,13 @@ impl eframe::App for PdfJoinerApp {
         });
     }
 }
+const BG_GRAY: Color32 = Color32::from_rgb(201, 199, 204);
+const BG_LIGHT_GRAY: Color32 = Color32::from_rgb(235, 235, 235);
+const BUTTON_ACTIVE_COLOUR: Color32 = Color32::from_rgb(98, 69, 199);
+const BUTTON_HOVER_COLOUR: Color32 = Color32::from_rgb(78, 49, 159);
+const BUTTON_HOVER_STROKE_COLOUR: Color32 = Color32::from_rgb(98, 69, 199);
+const BUTTON_INACTIVE_COLOUR: Color32 = Color32::from_rgb(78, 49, 159);
+const BUTTON_TEXT_COLOUR: Color32 = Color32::from_rgb(196, 190, 199);
 
 const HEADER_FOOTER_BG_COLOUR: Color32 = Color32::from_rgb(60, 63, 65);
 const SELECTED_BG_COLOUR: Color32 = Color32::from_rgb(100, 103, 105);
@@ -197,7 +230,14 @@ impl PdfJoinerApp {
         TopBottomPanel::top("header").frame(frame).show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 ui.add_space(5.0);
-                ui.heading("PDFJoiner");
+                let banner_width = match ui.available_width() > 400. {
+                    true => 400.,
+                    false => ui.available_width(),
+                };
+                let banner_height =
+                    banner_width * self.header_img.height() as f32 / self.header_img.width() as f32;
+                self.header_img
+                    .show_size(ui, Vec2::new(banner_width, banner_height));
                 ui.add_space(5.0);
             });
         });
