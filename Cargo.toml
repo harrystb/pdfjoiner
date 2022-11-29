@@ -1,6 +1,6 @@
 [package]
 name = "pdfjoiner"
-version = "2.0.0"
+version = "2.0.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -9,5 +9,5 @@ edition = "2021"
 lopdf = "0.29.0"
 eframe = "0.19"
 rfd = "0.10.0"
-image = "0.24.5"
-egui_extras = {version = "0.19.0", features = ["svg"]}
+image = {version = "0.24.5", features = ["png"]}
+egui_extras = {version = "0.19.0", features = ["svg", "image"]}

@@ -79,15 +79,27 @@ struct PdfJoinerApp {
 
 impl Default for PdfJoinerApp {
     fn default() -> Self {
+        // let header_banner_image = match cfg!(windows) {
+        //     true => RetainedImage::from_svg_bytes(
+        //         "header-banner.svg",
+        //         include_bytes!("resources\\bannerlogo2.svg"),
+        //     )
+        //         .unwrap(),
+        //     false => RetainedImage::from_svg_bytes(
+        //         "header-banner.svg",
+        //         include_bytes!("resources/bannerlogo2.svg"),
+        //     )
+        //         .unwrap(),
+        // };
         let header_banner_image = match cfg!(windows) {
-            true => RetainedImage::from_svg_bytes(
+            true => RetainedImage::from_image_bytes(
                 "header-banner.svg",
-                include_bytes!("resources\\bannerlogo.svg"),
+                include_bytes!("resources\\bannerlogo.png"),
             )
             .unwrap(),
-            false => RetainedImage::from_svg_bytes(
+            false => RetainedImage::from_image_bytes(
                 "header-banner.svg",
-                include_bytes!("resources/bannerlogo.svg"),
+                include_bytes!("resources/bannerlogo.png"),
             )
             .unwrap(),
         };
@@ -119,6 +131,7 @@ impl eframe::App for PdfJoinerApp {
         style.visuals.widgets.active.fg_stroke.color = BUTTON_TEXT_COLOUR;
         style.visuals.widgets.inactive.fg_stroke.color = BUTTON_TEXT_COLOUR;
         style.visuals.widgets.hovered.fg_stroke.color = BUTTON_TEXT_COLOUR;
+        style.visuals.widgets.noninteractive.fg_stroke.color = SELECTED_FG_COLOUR;
         let mut button_style = style.text_styles.get_mut(&TextStyle::Button).unwrap();
         button_style.size = 16.;
         ctx.set_style(style);
@@ -127,7 +140,11 @@ impl eframe::App for PdfJoinerApp {
         self.render_footer(ctx);
         self.render_left_panel(ctx);
         self.render_right_panel(ctx);
-        egui::CentralPanel::default().show(ctx, |ui| {
+        let mut frame = egui::Frame::default();
+        frame.fill = MAIN_BG_COLOUR;
+        frame.stroke.color = Color32::BLACK;
+        frame.stroke.width = 1.0;
+        egui::CentralPanel::default().frame(frame).show(ctx, |ui| {
             ui.vertical(|ui| {
                 ui.heading("2. Select Pages and Add to Generator");
                 ui.separator();
@@ -192,7 +209,8 @@ const BUTTON_HOVER_STROKE_COLOUR: Color32 = Color32::from_rgb(98, 69, 199);
 const BUTTON_INACTIVE_COLOUR: Color32 = Color32::from_rgb(78, 49, 159);
 const BUTTON_TEXT_COLOUR: Color32 = Color32::from_rgb(196, 190, 199);
 
-const HEADER_FOOTER_BG_COLOUR: Color32 = Color32::from_rgb(60, 63, 65);
+const HEADER_FOOTER_BG_COLOUR: Color32 = Color32::from_rgb(201, 199, 204);
+const MAIN_BG_COLOUR: Color32 = Color32::from_rgb(212, 212, 212);
 const SELECTED_BG_COLOUR: Color32 = Color32::from_rgb(100, 103, 105);
 const SELECTED_FG_COLOUR: Color32 = Color32::from_rgb(10, 13, 15);
 
@@ -230,26 +248,28 @@ impl PdfJoinerApp {
         TopBottomPanel::top("header").frame(frame).show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 ui.add_space(5.0);
-                let banner_width = match ui.available_width() > 400. {
-                    true => 400.,
-                    false => ui.available_width(),
-                };
-                let banner_height =
-                    banner_width * self.header_img.height() as f32 / self.header_img.width() as f32;
-                self.header_img
-                    .show_size(ui, Vec2::new(banner_width, banner_height));
+                // let scale = match ui.available_width() > 400. {
+                //     true => 400. / self.header_img.width() as f32,
+                //     false => ui.available_width() / self.header_img.width() as f32,
+                // };
+                //self.header_img.show_scaled(ui, scale);
+                self.header_img.show(ui);
                 ui.add_space(5.0);
             });
         });
     }
 
     fn render_left_panel(&mut self, ctx: &Context) {
+        let mut frame = egui::Frame::default();
+        frame.fill = MAIN_BG_COLOUR;
+        frame.stroke.color = Color32::BLACK;
+        frame.stroke.width = 1.0;
         for dropped_file in ctx.input().raw.dropped_files.iter() {
             if let Some(file) = &dropped_file.path {
                 self.add_pdf_file(file);
             }
         }
-        SidePanel::left("files").show(ctx, |ui| {
+        SidePanel::left("files").frame(frame).show(ctx, |ui| {
             ui.vertical(|ui| {
                 ui.heading("1. Select Documents");
                 ui.add_space(4.0);
@@ -336,7 +356,11 @@ impl PdfJoinerApp {
     }
 
     fn render_right_panel(&mut self, ctx: &Context) {
-        SidePanel::right("generation").show(ctx, |ui| {
+        let mut frame = egui::Frame::default();
+        frame.fill = MAIN_BG_COLOUR;
+        frame.stroke.color = Color32::BLACK;
+        frame.stroke.width = 1.0;
+        SidePanel::right("generation").frame(frame).show(ctx, |ui| {
             ui.vertical(|ui| {
                 ui.heading("3. Generation Document");
                 ui.add_space(4.0);

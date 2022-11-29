@@ -651,6 +651,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f698f685bb0ad39e87109e2f695ded0bccde77d5d40bbf7590cb5561c1e3039d"
 dependencies = [
  "egui",
+ "image",
  "resvg",
  "tiny-skia 0.6.6",
  "usvg",
@@ -1763,7 +1764,7 @@ dependencies = [
 
 [[package]]
 name = "pdfjoiner"
-version = "2.0.0"
+version = "2.0.1"
 dependencies = [
  "eframe",
  "egui_extras",
