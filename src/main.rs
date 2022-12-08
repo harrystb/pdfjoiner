@@ -1,6 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-
 use eframe::egui;
 use eframe::egui::widgets::{Button, Label};
 use eframe::egui::{
@@ -523,7 +522,12 @@ impl PdfJoinerApp {
                                 .into_iter()
                                 .filter(|(i, _)| *i as usize >= *from && *i as usize <= *to)
                                 .map(|(_, object_id)| {
-                                    (object_id, doc.get_object(object_id).unwrap().to_owned())
+                                    // change page object ID so the order is as per the segment ordering
+                                    max_id += 1;
+                                    (
+                                        (max_id - 1, object_id.1),
+                                        doc.get_object(object_id).unwrap().to_owned(),
+                                    )
                                 }),
                         );
                     }
@@ -675,7 +679,10 @@ impl PdfJoinerApp {
 
         document.compress();
 
-        match rfd::FileDialog::new().save_file() {
+        match rfd::FileDialog::new()
+            .add_filter("PDF", &["pdf"])
+            .save_file()
+        {
             None => (), // do nothing
             Some(p) => match document.save(p.as_path()) {
                 Err(e) => {
