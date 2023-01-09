@@ -3,8 +3,9 @@
 use eframe::egui;
 use eframe::egui::widgets::{Button, Label};
 use eframe::egui::{
-    Align, Color32, Context, CursorIcon, Frame, Id, Image, ImageData, LayerId, Layout, Order,
-    RichText, Sense, SidePanel, Slider, TextStyle, TextureHandle, TopBottomPanel, Ui, Vec2, Window,
+    Align, Color32, Context, CursorIcon, Frame, Id, Image, ImageData, LayerId, Layout, Order, Pos2,
+    Rect, RichText, Sense, SidePanel, Slider, TextStyle, TextureHandle, TopBottomPanel, Ui, Vec2,
+    Window,
 };
 use egui_extras::image::RetainedImage;
 use rfd::FileDialog;
@@ -93,18 +94,18 @@ impl Default for PdfJoinerApp {
         //     )
         //         .unwrap(),
         // };
-        let header_banner_image = match cfg!(windows) {
-            true => RetainedImage::from_image_bytes(
-                "header-banner.svg",
-                include_bytes!("resources\\bannerlogo.png"),
-            )
-            .unwrap(),
-            false => RetainedImage::from_image_bytes(
-                "header-banner.svg",
-                include_bytes!("resources/bannerlogo.png"),
-            )
-            .unwrap(),
-        };
+        #[cfg(windows)]
+        let header_banner_image = RetainedImage::from_image_bytes(
+            "header-banner.svg",
+            include_bytes!("resources\\bannerlogo.png"),
+        )
+        .unwrap();
+        #[cfg(not(windows))]
+        let header_banner_image = RetainedImage::from_image_bytes(
+            "header-banner.svg",
+            include_bytes!("resources/bannerlogo.png"),
+        )
+        .unwrap();
         PdfJoinerApp {
             version: env!("CARGO_PKG_VERSION").to_owned(),
             pdfs: HashMap::new(),
@@ -137,9 +138,120 @@ impl eframe::App for PdfJoinerApp {
         let mut button_style = style.text_styles.get_mut(&TextStyle::Button).unwrap();
         button_style.size = 16.;
         ctx.set_style(style);
+        for dropped_file in ctx.input().raw.dropped_files.iter() {
+            if let Some(file) = &dropped_file.path {
+                self.add_pdf_file(file);
+            }
+        }
         self.render_msgboxes(ctx);
         self.render_header(ctx);
         self.render_footer(ctx);
+        if self.pdfs.len() == 0 {
+            self.render_starting_panel(ctx);
+        } else {
+            self.render_active_panels(ctx);
+        }
+    }
+}
+const BG_GRAY: Color32 = Color32::from_rgb(201, 199, 204);
+const BG_LIGHT_GRAY: Color32 = Color32::from_rgb(235, 235, 235);
+const BUTTON_ACTIVE_COLOUR: Color32 = Color32::from_rgb(98, 69, 199);
+const BUTTON_HOVER_COLOUR: Color32 = Color32::from_rgb(78, 49, 159);
+const BUTTON_HOVER_STROKE_COLOUR: Color32 = Color32::from_rgb(98, 69, 199);
+const BUTTON_INACTIVE_COLOUR: Color32 = Color32::from_rgb(78, 49, 159);
+const BUTTON_TEXT_COLOUR: Color32 = Color32::from_rgb(196, 190, 199);
+
+const HEADER_FOOTER_BG_COLOUR: Color32 = Color32::from_rgb(201, 199, 204);
+const MAIN_BG_COLOUR: Color32 = Color32::from_rgb(212, 212, 212);
+const SELECTED_BG_COLOUR: Color32 = Color32::from_rgb(100, 103, 105);
+const SELECTED_FG_COLOUR: Color32 = Color32::from_rgb(10, 13, 15);
+
+impl PdfJoinerApp {
+    fn render_msgboxes(&mut self, ctx: &Context) {
+        let mut closed_msgboxes = vec![];
+        for (index, msgbox) in self.msg_boxes.iter_mut().enumerate() {
+            if msgbox.show(ctx) {
+                closed_msgboxes.push(index);
+            }
+        }
+        closed_msgboxes.reverse();
+        for index in closed_msgboxes {
+            self.msg_boxes.remove(index);
+        }
+    }
+
+    fn render_footer(&self, ctx: &Context) {
+        let mut frame = egui::Frame::default();
+        frame.fill = HEADER_FOOTER_BG_COLOUR;
+        TopBottomPanel::bottom("footer")
+            .frame(frame)
+            .show(ctx, |ui| {
+                ui.vertical_centered(|ui| {
+                    ui.add_space(5.0);
+                    ui.add(Label::new("Harrison St Baker"));
+                    ui.add(Label::new(format!("Version: {}", self.version)));
+                    ui.add_space(5.0);
+                });
+            });
+    }
+    fn render_header(&self, ctx: &Context) {
+        let mut frame = egui::Frame::default();
+        frame.fill = HEADER_FOOTER_BG_COLOUR;
+        TopBottomPanel::top("header").frame(frame).show(ctx, |ui| {
+            if self.pdfs.len() > 0 {
+                //short version
+                ui.vertical(|ui| {
+                    ui.add_space(5.0);
+                    ui.label(
+                        RichText::new("PDFJoiner")
+                            .color(Color32::DARK_RED)
+                            .heading()
+                            .strong()
+                            .italics(),
+                    );
+                    ui.add_space(5.0);
+                });
+            } else {
+                //long version
+                ui.vertical_centered(|ui| {
+                    ui.add_space(5.0);
+                    self.header_img.show(ui);
+                    ui.add_space(5.0);
+                });
+            }
+        });
+    }
+
+    fn render_starting_panel(&mut self, ctx: &Context) {
+        let mut frame = egui::Frame::default();
+        frame.fill = MAIN_BG_COLOUR;
+        frame.stroke.color = Color32::BLACK;
+        frame.stroke.width = 1.0;
+        egui::CentralPanel::default().frame(frame).show(ctx, |ui| {
+            let mut layout = Layout::default();
+            layout.with_cross_align(Align::Center);
+            layout.with_main_align(Align::Center);
+            ui.vertical_centered(|ui| {
+                ui.add_space((ui.available_height() - 60.) / 2.);
+                ui.heading("Add a PDF document to start...");
+                ui.label("You can drag and drop or press the button below for a file dialog.");
+                if ui
+                    .add_sized([200., 20.], Button::new("Add Files"))
+                    .clicked()
+                {
+                    let files = FileDialog::new()
+                        .add_filter("pdf", &["pdf"])
+                        .pick_files()
+                        .unwrap_or(vec![]);
+                    for file in files {
+                        self.add_pdf_file(&file);
+                    }
+                }
+            });
+        });
+    }
+
+    fn render_active_panels(&mut self, ctx: &Context) {
         self.render_left_panel(ctx);
         self.render_right_panel(ctx);
         let mut frame = egui::Frame::default();
@@ -148,8 +260,8 @@ impl eframe::App for PdfJoinerApp {
         frame.stroke.width = 1.0;
         egui::CentralPanel::default().frame(frame).show(ctx, |ui| {
             ui.vertical(|ui| {
-                ui.heading("2. Select Pages and Add to Generator");
-                ui.separator();
+                ui.heading("Page Selection");
+                ui.add_space(4.0);
                 match &self.selected_pdf {
                     None => (),
                     Some(selected_pdf_id) => match self.pdfs.get_mut(selected_pdf_id) {
@@ -202,92 +314,17 @@ impl eframe::App for PdfJoinerApp {
             });
         });
     }
-}
-const BG_GRAY: Color32 = Color32::from_rgb(201, 199, 204);
-const BG_LIGHT_GRAY: Color32 = Color32::from_rgb(235, 235, 235);
-const BUTTON_ACTIVE_COLOUR: Color32 = Color32::from_rgb(98, 69, 199);
-const BUTTON_HOVER_COLOUR: Color32 = Color32::from_rgb(78, 49, 159);
-const BUTTON_HOVER_STROKE_COLOUR: Color32 = Color32::from_rgb(98, 69, 199);
-const BUTTON_INACTIVE_COLOUR: Color32 = Color32::from_rgb(78, 49, 159);
-const BUTTON_TEXT_COLOUR: Color32 = Color32::from_rgb(196, 190, 199);
-
-const HEADER_FOOTER_BG_COLOUR: Color32 = Color32::from_rgb(201, 199, 204);
-const MAIN_BG_COLOUR: Color32 = Color32::from_rgb(212, 212, 212);
-const SELECTED_BG_COLOUR: Color32 = Color32::from_rgb(100, 103, 105);
-const SELECTED_FG_COLOUR: Color32 = Color32::from_rgb(10, 13, 15);
-
-impl PdfJoinerApp {
-    fn render_msgboxes(&mut self, ctx: &Context) {
-        let mut closed_msgboxes = vec![];
-        for (index, msgbox) in self.msg_boxes.iter_mut().enumerate() {
-            if msgbox.show(ctx) {
-                closed_msgboxes.push(index);
-            }
-        }
-        closed_msgboxes.reverse();
-        for index in closed_msgboxes {
-            self.msg_boxes.remove(index);
-        }
-    }
-
-    fn render_footer(&self, ctx: &Context) {
-        let mut frame = egui::Frame::default();
-        frame.fill = HEADER_FOOTER_BG_COLOUR;
-        TopBottomPanel::bottom("footer")
-            .frame(frame)
-            .show(ctx, |ui| {
-                ui.vertical_centered(|ui| {
-                    ui.add_space(5.0);
-                    ui.add(Label::new("Harrison St Baker"));
-                    ui.add(Label::new(format!("Version: {}", self.version)));
-                    ui.add_space(5.0);
-                });
-            });
-    }
-    fn render_header(&self, ctx: &Context) {
-        let mut frame = egui::Frame::default();
-        frame.fill = HEADER_FOOTER_BG_COLOUR;
-        TopBottomPanel::top("header").frame(frame).show(ctx, |ui| {
-            ui.vertical_centered(|ui| {
-                ui.add_space(5.0);
-                // let scale = match ui.available_width() > 400. {
-                //     true => 400. / self.header_img.width() as f32,
-                //     false => ui.available_width() / self.header_img.width() as f32,
-                // };
-                //self.header_img.show_scaled(ui, scale);
-                self.header_img.show(ui);
-                ui.add_space(5.0);
-            });
-        });
-    }
 
     fn render_left_panel(&mut self, ctx: &Context) {
         let mut frame = egui::Frame::default();
         frame.fill = MAIN_BG_COLOUR;
         frame.stroke.color = Color32::BLACK;
         frame.stroke.width = 1.0;
-        for dropped_file in ctx.input().raw.dropped_files.iter() {
-            if let Some(file) = &dropped_file.path {
-                self.add_pdf_file(file);
-            }
-        }
         SidePanel::left("files").frame(frame).show(ctx, |ui| {
+            ui.set_width(ctx.available_rect().width() / 3.);
             ui.vertical(|ui| {
-                ui.heading("1. Select Documents");
+                ui.heading("Documents");
                 ui.add_space(4.0);
-                if ui
-                    .add_sized([ui.available_width(), 20.], Button::new("Add Files"))
-                    .clicked()
-                {
-                    let files = FileDialog::new()
-                        .add_filter("pdf", &["pdf"])
-                        .pick_files()
-                        .unwrap_or(vec![]);
-                    for file in files {
-                        self.add_pdf_file(&file);
-                    }
-                }
-                ui.separator();
                 let mut pdfs_names: Vec<(usize, String)> = self
                     .pdfs
                     .iter()
@@ -296,9 +333,6 @@ impl PdfJoinerApp {
                 pdfs_names.sort_by_key(|v| v.0);
                 for (id, pdf_title) in pdfs_names {
                     ui.with_layout(Layout::right_to_left(Align::TOP), |ui| {
-                        if ui.add(Button::new("X").small()).clicked() {
-                            self.pdfs.remove(&id);
-                        }
                         let mut is_selected = false;
                         if let Some(selected) = &self.selected_pdf {
                             if *selected == id {
@@ -309,6 +343,33 @@ impl PdfJoinerApp {
                             false => Frame::default(),
                             true => Frame::default().fill(SELECTED_BG_COLOUR),
                         };
+                        // show delete button only on hovered item
+                        let mut hover_rect = ui.max_rect();
+                        hover_rect.set_height(18.);
+                        if ui.rect_contains_pointer(hover_rect) {
+                            if ui.add(Button::new("X").small()).clicked() {
+                                self.pdfs.remove(&id);
+                                if is_selected {
+                                    self.selected_pdf = None;
+                                }
+                            }
+                        }
+                        if ui
+                            .interact(
+                                hover_rect,
+                                Id::new(format!("hoverrect_{}", id)),
+                                Sense::click(),
+                            )
+                            .clicked()
+                        {
+                            self.from_page = 1;
+                            self.to_page = match self.pdfs.get(&id) {
+                                None => 1,
+                                Some(pdffile) => pdffile.data.get_pages().len(),
+                            };
+                            self.selected_pdf = Some(id);
+                        }
+                        // add pdf title label
                         frame.show(ui, |ui| {
                             ui.with_layout(Layout::left_to_right(Align::TOP), |ui| {
                                 let l = match is_selected {
@@ -319,19 +380,26 @@ impl PdfJoinerApp {
                                     false => Label::new(format!("({}) {}", id, pdf_title))
                                         .sense(Sense::click()),
                                 };
-                                if ui.add(l).clicked() {
-                                    self.from_page = 1;
-                                    self.to_page = match self.pdfs.get(&id) {
-                                        None => 1,
-                                        Some(pdffile) => pdffile.data.get_pages().len(),
-                                    };
-                                    self.selected_pdf = Some(id);
-                                }
-                            })
+                                ui.add(l);
+                            });
                         });
                     });
                 }
             });
+            ui.vertical_centered(|ui| {
+                if ui
+                    .add_sized([120., 20.], Button::new("Add More Files"))
+                    .clicked()
+                {
+                    let files = FileDialog::new()
+                        .add_filter("pdf", &["pdf"])
+                        .pick_files()
+                        .unwrap_or(vec![]);
+                    for file in files {
+                        self.add_pdf_file(&file);
+                    }
+                }
+            })
         });
     }
 
@@ -363,16 +431,10 @@ impl PdfJoinerApp {
         frame.stroke.color = Color32::BLACK;
         frame.stroke.width = 1.0;
         SidePanel::right("generation").frame(frame).show(ctx, |ui| {
+            ui.set_width(ctx.available_rect().width() / 2.);
             ui.vertical(|ui| {
-                ui.heading("3. Generation Document");
+                ui.heading("Output Section");
                 ui.add_space(4.0);
-                if ui
-                    .add_sized([ui.available_width(), 20.], Button::new("Generate"))
-                    .clicked()
-                {
-                    self.generate_pdf();
-                }
-                ui.separator();
                 let mut segments_to_remove = vec![];
                 for (segment_id_index, segment_id) in self.segment_order.clone().iter().enumerate()
                 {
@@ -418,25 +480,6 @@ impl PdfJoinerApp {
                     }
                 }
                 let something_is_being_dragged = ui.memory().is_anything_being_dragged();
-                // TODO: Remove if I don't run into issues without it. It is a rectangle to allow putting the item at the end but the changes to check relative position seem to do it better.
-                // if something_is_being_dragged {
-                //     let where_to_put_background = ui.painter().add(Shape::Noop);
-                //     let (rect, response) =
-                //         ui.allocate_at_least(Vec2::new(ui.available_width(), 20.), Sense::hover());
-                //     let style = ui.visuals().widgets.active;
-                //     ui.painter().set(
-                //         where_to_put_background,
-                //         eframe::epaint::RectShape {
-                //             rounding: style.rounding,
-                //             fill: style.bg_fill,
-                //             stroke: style.bg_stroke,
-                //             rect,
-                //         },
-                //     );
-                //     if response.hovered() {
-                //         self.drop_index = self.segment_order.len();
-                //     }
-                // }
                 for segment_id in segments_to_remove {
                     // remove from segments and the segment order vec
                     self.segment_order.retain(|v| *v != segment_id);
@@ -453,6 +496,15 @@ impl PdfJoinerApp {
                         }
                         self.segment_order.insert(target_index, removed_segment_id);
                     }
+                }
+            });
+            ui.vertical_centered(|ui| {
+                if ui.add_sized([120., 20.], Button::new("Generate")).clicked() {
+                    self.generate_pdf();
+                }
+                if ui.add_sized([80., 20.], Button::new("Clear")).clicked() {
+                    self.segment_order.clear();
+                    self.segments.clear();
                 }
             });
         });
