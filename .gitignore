@@ -6,3 +6,5 @@
 */bin*
 */releases/*
 /target
+.DS_Store
+*/.DS_Store
