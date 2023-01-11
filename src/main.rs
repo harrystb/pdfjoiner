@@ -82,18 +82,6 @@ struct PdfJoinerApp {
 
 impl Default for PdfJoinerApp {
     fn default() -> Self {
-        // let header_banner_image = match cfg!(windows) {
-        //     true => RetainedImage::from_svg_bytes(
-        //         "header-banner.svg",
-        //         include_bytes!("resources\\bannerlogo2.svg"),
-        //     )
-        //         .unwrap(),
-        //     false => RetainedImage::from_svg_bytes(
-        //         "header-banner.svg",
-        //         include_bytes!("resources/bannerlogo2.svg"),
-        //     )
-        //         .unwrap(),
-        // };
         #[cfg(windows)]
         let header_banner_image = RetainedImage::from_image_bytes(
             "header-banner.svg",
@@ -127,6 +115,7 @@ impl Default for PdfJoinerApp {
 impl eframe::App for PdfJoinerApp {
     fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
         let mut style = (*ctx.style()).clone();
+        style.visuals.override_text_color = Some(SELECTED_FG_COLOUR);
         style.visuals.widgets.inactive.bg_fill = BUTTON_ACTIVE_COLOUR;
         style.visuals.widgets.hovered.bg_fill = BUTTON_HOVER_COLOUR;
         style.visuals.widgets.active.bg_fill = BUTTON_HOVER_COLOUR;
@@ -165,6 +154,7 @@ const HEADER_FOOTER_BG_COLOUR: Color32 = Color32::from_rgb(201, 199, 204);
 const MAIN_BG_COLOUR: Color32 = Color32::from_rgb(212, 212, 212);
 const SELECTED_BG_COLOUR: Color32 = Color32::from_rgb(100, 103, 105);
 const SELECTED_FG_COLOUR: Color32 = Color32::from_rgb(10, 13, 15);
+const LIGHT_FG_COLOUR: Color32 = Color32::from_rgb(150, 153, 155);
 
 impl PdfJoinerApp {
     fn render_msgboxes(&mut self, ctx: &Context) {
@@ -258,12 +248,19 @@ impl PdfJoinerApp {
         frame.fill = MAIN_BG_COLOUR;
         frame.stroke.color = Color32::BLACK;
         frame.stroke.width = 1.0;
+        frame.inner_margin.left = 3.0;
         egui::CentralPanel::default().frame(frame).show(ctx, |ui| {
             ui.vertical(|ui| {
-                ui.heading("Page Selection");
+                ui.heading("Page Selection").on_hover_text(
+                    RichText::new("Select the page range to add to the output document.")
+                        .italics()
+                        .color(LIGHT_FG_COLOUR),
+                );
                 ui.add_space(4.0);
                 match &self.selected_pdf {
-                    None => (),
+                    None => {
+                        ui.label(RichText::new("Select a document to start...").italics());
+                    }
                     Some(selected_pdf_id) => match self.pdfs.get_mut(selected_pdf_id) {
                         None => {
                             ui.label(format!(
@@ -272,9 +269,15 @@ impl PdfJoinerApp {
                             ));
                         }
                         Some(pdf_file) => {
-                            ui.label(&pdf_file.title);
+                            ui.horizontal(|ui| {
+                                ui.label(RichText::new("Filename:"));
+                                ui.label(RichText::new(&pdf_file.title).italics());
+                            });
                             let page_count = pdf_file.data.get_pages().len();
-                            ui.label(format!("Page count: {}", page_count));
+                            ui.horizontal(|ui| {
+                                ui.label(RichText::new("Total pages in document:"));
+                                ui.label(RichText::new(page_count.to_string()).italics());
+                            });
                             let resp = ui.add(
                                 Slider::new(
                                     &mut self.from_page,
@@ -320,10 +323,15 @@ impl PdfJoinerApp {
         frame.fill = MAIN_BG_COLOUR;
         frame.stroke.color = Color32::BLACK;
         frame.stroke.width = 1.0;
+        frame.inner_margin.left = 3.0;
         SidePanel::left("files").frame(frame).show(ctx, |ui| {
             ui.set_width(ctx.available_rect().width() / 3.);
             ui.vertical(|ui| {
-                ui.heading("Documents");
+                ui.heading("Input Documents").on_hover_text(
+                    RichText::new("Select a document which will be used for the output document. More input documents can be added by drag and dropping or pressing the button below.")
+                        .italics()
+                        .color(LIGHT_FG_COLOUR),
+                );
                 ui.add_space(4.0);
                 let mut pdfs_names: Vec<(usize, String)> = self
                     .pdfs
@@ -352,6 +360,16 @@ impl PdfJoinerApp {
                                 if is_selected {
                                     self.selected_pdf = None;
                                 }
+                                let mut segment_ids_to_remove = vec![];
+                                for (seg_id, (pdf_id, _,_))in self.segments.iter() {
+                                    if *pdf_id == id {
+                                        segment_ids_to_remove.push(seg_id.clone());
+                                    }
+                                }
+                                for segment_id in segment_ids_to_remove {
+                                    self.segments.remove(&segment_id);
+                                    self.segment_order.retain(|v| *v != segment_id);
+                                }
                             }
                         }
                         if ui
@@ -374,10 +392,10 @@ impl PdfJoinerApp {
                             ui.with_layout(Layout::left_to_right(Align::TOP), |ui| {
                                 let l = match is_selected {
                                     true => Label::new(
-                                        RichText::new(format!("({}) {}", id, pdf_title))
+                                        RichText::new(format!("{}. {}", id + 1, pdf_title))
                                             .color(SELECTED_FG_COLOUR),
                                     ),
-                                    false => Label::new(format!("({}) {}", id, pdf_title))
+                                    false => Label::new(format!("{}. {}", id + 1, pdf_title))
                                         .sense(Sense::click()),
                                 };
                                 ui.add(l);
@@ -430,10 +448,15 @@ impl PdfJoinerApp {
         frame.fill = MAIN_BG_COLOUR;
         frame.stroke.color = Color32::BLACK;
         frame.stroke.width = 1.0;
+        frame.inner_margin.left = 3.0;
         SidePanel::right("generation").frame(frame).show(ctx, |ui| {
             ui.set_width(ctx.available_rect().width() / 2.);
             ui.vertical(|ui| {
-                ui.heading("Output Section");
+                ui.heading("Output Section").on_hover_text(
+                    RichText::new("Generate the output document from the page sections shown below by pressing the generate button. The order of the sections can be changed by dragging and dropping or they can be removed by pressing the x button.")
+                        .italics()
+                        .color(LIGHT_FG_COLOUR),
+                );
                 ui.add_space(4.0);
                 let mut segments_to_remove = vec![];
                 for (segment_id_index, segment_id) in self.segment_order.clone().iter().enumerate()
@@ -442,8 +465,12 @@ impl PdfJoinerApp {
                         let (id, from, to) = temp_val.to_owned();
                         let item_id = Id::new(segment_id);
                         ui.with_layout(Layout::right_to_left(Align::TOP), |ui| {
-                            if ui.add(Button::new("X").small()).clicked() {
-                                segments_to_remove.push(segment_id.to_owned());
+                            let mut hover_rect = ui.max_rect();
+                            hover_rect.set_height(36.);
+                            if ui.rect_contains_pointer(hover_rect) {
+                                if ui.add(Button::new("X").small()).clicked() {
+                                    segments_to_remove.push(segment_id.to_owned());
+                                }
                             }
                             if PdfJoinerApp::draggable_item(ui, item_id, |ui| {
                                 let response = match self.pdfs.get(&id) {
@@ -454,8 +481,8 @@ impl PdfJoinerApp {
                                     Some(pdffile) => {
                                         ui.with_layout(Layout::left_to_right(Align::TOP), |ui| {
                                             ui.label(format!(
-                                                "({}){}\nFrom: {} To: {}",
-                                                id, pdffile.title, from, to
+                                                "Source Document ID: {}\nFilename: {}\nPages {} to {}.",
+                                                id+1, pdffile.title, from, to
                                             ));
                                         })
                                         .response
